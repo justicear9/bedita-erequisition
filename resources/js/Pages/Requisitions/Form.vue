@@ -21,7 +21,14 @@ const emptyRow = () => ({
     product: null,
 });
 
+const minDate = props.today;
+const initialRequestedOn =
+    props.requisition?.requested_on && props.requisition.requested_on >= props.today
+        ? props.requisition.requested_on
+        : props.today;
+
 const form = useForm({
+    requested_on: initialRequestedOn,
     request_type: props.requisition?.request_type ?? 'promotion',
     request_type_other: props.requisition?.request_type_other ?? '',
     purpose: props.requisition?.purpose ?? '',
@@ -71,6 +78,7 @@ const save = (shouldSubmit) => {
 
     form
         .transform((data) => ({
+            requested_on: data.requested_on,
             request_type: data.request_type,
             request_type_other: data.request_type_other,
             purpose: data.purpose,
@@ -104,11 +112,12 @@ const save = (shouldSubmit) => {
                         <div>
                             <label class="block text-sm font-medium text-bedita-navy">Date of request</label>
                             <input
+                                v-model="form.requested_on"
                                 type="date"
-                                :value="today"
-                                readonly
-                                class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-base shadow-sm"
+                                :min="minDate"
+                                class="mt-1 block w-full rounded-md border-gray-300 text-base shadow-sm focus:border-bedita-red focus:ring-bedita-red"
                             />
+                            <InputError :message="form.errors.requested_on" class="mt-1" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-bedita-navy">Requester</label>

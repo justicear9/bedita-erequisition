@@ -51,7 +51,7 @@ class RequisitionController extends Controller
                 'number' => $this->nextNumber(),
                 'requester_id' => $user->id,
                 'department_id' => $user->department_id,
-                'requested_on' => now()->toDateString(),
+                'requested_on' => $data['requested_on'],
                 'request_type' => $data['request_type'],
                 'request_type_other' => $data['request_type_other'] ?? null,
                 'purpose' => $data['purpose'],
@@ -133,7 +133,11 @@ class RequisitionController extends Controller
         $user = request()->user()->load('department');
 
         return Inertia::render('Requisitions/Form', [
-            'requisition' => $requisition,
+            'requisition' => [
+                ...$requisition->toArray(),
+                'requested_on' => $requisition->requested_on->toDateString(),
+                'items' => $requisition->items,
+            ],
             'declarationText' => Requisition::DECLARATION_TEXT,
             'requestTypes' => collect(RequestType::cases())->map(fn ($t) => [
                 'value' => $t->value,
@@ -143,7 +147,7 @@ class RequisitionController extends Controller
                 'name' => $user->name,
                 'department' => $user->department?->name,
             ],
-            'today' => $requisition->requested_on->toDateString(),
+            'today' => now()->toDateString(),
         ]);
     }
 
@@ -155,6 +159,7 @@ class RequisitionController extends Controller
 
         DB::transaction(function () use ($data, $requisition, $request) {
             $requisition->update([
+                'requested_on' => $data['requested_on'],
                 'request_type' => $data['request_type'],
                 'request_type_other' => $data['request_type_other'] ?? null,
                 'purpose' => $data['purpose'],
@@ -315,6 +320,7 @@ class RequisitionController extends Controller
         $submitting = $request->boolean('should_submit');
 
         return $request->validate([
+            'requested_on' => ['required', 'date', 'after_or_equal:today'],
             'request_type' => ['required', Rule::enum(RequestType::class)],
             'request_type_other' => ['nullable', 'required_if:request_type,other', 'string', 'max:255'],
             'purpose' => ['required', 'string', 'max:5000'],

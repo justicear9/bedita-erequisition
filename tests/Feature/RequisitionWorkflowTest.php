@@ -53,6 +53,7 @@ class RequisitionWorkflowTest extends TestCase
 
         $this->actingAs($requester)
             ->post(route('requisitions.store'), [
+                'requested_on' => now()->toDateString(),
                 'request_type' => 'promotion',
                 'purpose' => 'Demo purpose',
                 'declaration' => true,
@@ -65,6 +66,7 @@ class RequisitionWorkflowTest extends TestCase
 
         $requisition = Requisition::query()->first();
         $this->assertSame(RequisitionStatus::PendingManager, $requisition->status);
+        $this->assertSame(now()->toDateString(), $requisition->requested_on->toDateString());
         $this->assertNotNull($requisition->requester_signature_path);
 
         $this->actingAs($manager)
@@ -121,6 +123,7 @@ class RequisitionWorkflowTest extends TestCase
         ]);
 
         $this->actingAs($requester)->post(route('requisitions.store'), [
+            'requested_on' => now()->addDay()->toDateString(),
             'request_type' => 'donation',
             'purpose' => 'Charity',
             'declaration' => true,
@@ -163,5 +166,33 @@ class RequisitionWorkflowTest extends TestCase
         ]);
 
         $this->assertSame(RequisitionStatus::Released, $requisition->fresh()->status);
+    }
+
+    public function test_requested_on_cannot_be_in_the_past(): void
+    {
+        $department = Department::query()->create(['name' => 'Sales']);
+        $requester = User::factory()->create([
+            'role' => UserRole::Requester,
+            'department_id' => $department->id,
+        ]);
+        $product = Product::query()->create([
+            'sku' => 'SKU-PAST',
+            'description' => 'Past Date Product',
+            'uom' => 'PCS',
+            'price' => 5,
+        ]);
+
+        $this->actingAs($requester)
+            ->post(route('requisitions.store'), [
+                'requested_on' => now()->subDay()->toDateString(),
+                'request_type' => 'promotion',
+                'purpose' => 'Should fail',
+                'declaration' => true,
+                'items' => [['product_id' => $product->id, 'qty' => 1]],
+                'should_submit' => false,
+            ])
+            ->assertSessionHasErrors('requested_on');
+
+        $this->assertDatabaseCount('requisitions', 0);
     }
 }
