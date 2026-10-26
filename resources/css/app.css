@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+@media print {
+    nav,
+    header,
+    .print\:hidden {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+    }
+}
+

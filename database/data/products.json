@@ -1,0 +1,1430 @@
+[
+  {
+    "sku": "IMP0000001",
+    "description": "BRIMONIDINE TARTRATE OPHTHALMIC SOLUTION (ALPHAGAN PURITE) EYE DROP 0.15% 5ML",
+    "uom": "BTL",
+    "price": 189.0066
+  },
+  {
+    "sku": "IMP0000002",
+    "description": "LEVOBUNOLOL HYDROCHLORIDE (BETAGAN) EYE DROP 0.5% 5ML",
+    "uom": "BTL",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000003",
+    "description": "BRIMONIDINE TARTRATE / TIMOLOL MALEATE (COMBIGAN) EYE DROP 0.2%/0.5% 5ML",
+    "uom": "BTL",
+    "price": 194.12742
+  },
+  {
+    "sku": "IMP0000004",
+    "description": "OFLOXACIN (EXOCIN) EYE DROP 0.3% 5ML",
+    "uom": "BTL",
+    "price": 103.69
+  },
+  {
+    "sku": "IMP0000006",
+    "description": "LIQUIFILM (FML- NEO) EYE DROP 5ML",
+    "uom": "BTL",
+    "price": 91.37702
+  },
+  {
+    "sku": "IMP0000007",
+    "description": "BIMATOPROST/TIMOLOL (GANFORTE) EYE DROP 0.3MG/ML/5.0MG/ML 3ML",
+    "uom": "BTL",
+    "price": 382.42
+  },
+  {
+    "sku": "IMP0000008",
+    "description": "BIMATOPROST (LUMIGAN) EYE DROP 0.01% 2.5ML",
+    "uom": "PCS",
+    "price": 254.12049
+  },
+  {
+    "sku": "IMP0000009",
+    "description": "BIMATOPROST (LUMIGAN) EYE DROP 0.03% 3ML",
+    "uom": "BTL",
+    "price": 327.79
+  },
+  {
+    "sku": "IMP0000011",
+    "description": "OXIMETAZOLINE (OXYLIN) EYE DROP 15ML",
+    "uom": "BTL",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000012",
+    "description": "PREDNISOLONE ACETATE (PRED FORTE) EYE DROP 1% 5ML",
+    "uom": "PCS",
+    "price": 131.01
+  },
+  {
+    "sku": "IMP0000013",
+    "description": "REFRESH LIQUIGEL EYE GEL 0.5 15ML",
+    "uom": "BTL",
+    "price": 49.7225
+  },
+  {
+    "sku": "IMP0000014",
+    "description": "REFRESH TEARS EYE DROP 0.5 15ML",
+    "uom": "BTL",
+    "price": 107.00814
+  },
+  {
+    "sku": "IMP0000015",
+    "description": "EPINASTINA CLORHIDROTO (RELESTAT) EYE DROP 0.5MG/ML 5ML",
+    "uom": "BTL",
+    "price": 81.73333
+  },
+  {
+    "sku": "IMP0000016",
+    "description": "GATIFLOXACINO (ZYMAR) EYE DROP 0.3% 5ML",
+    "uom": "BTL",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000018",
+    "description": "BIOFLOR CAPS 250MG 10's",
+    "uom": "BTL",
+    "price": 74.99778
+  },
+  {
+    "sku": "IMP0000019",
+    "description": "BIOFLOR SACHETS 250MG 10's",
+    "uom": "PK",
+    "price": 74.99833
+  },
+  {
+    "sku": "IMP0000020",
+    "description": "FENAZONE LIDOCAINA (OTIPAX) EAR DROPS 16G",
+    "uom": "BTL",
+    "price": 60.00241
+  },
+  {
+    "sku": "IMP0000022",
+    "description": "CIPROFLOXACIN INJ. (BEDICIP) 200MG 100ML",
+    "uom": "PCS",
+    "price": 7.80462
+  },
+  {
+    "sku": "IMP0000023",
+    "description": "BEDIKOF ADULT DRY COUGH 100ML",
+    "uom": "BTL",
+    "price": 10.42
+  },
+  {
+    "sku": "IMP0000024",
+    "description": "BEDIKOF BABY DRY COUGH 100ML",
+    "uom": "BTL",
+    "price": 8.66
+  },
+  {
+    "sku": "IMP0000025",
+    "description": "BEDIKOF CHILD DRY COUGH 100ML",
+    "uom": "BTL",
+    "price": 9.16
+  },
+  {
+    "sku": "IMP0000026",
+    "description": "METRONIDAZOLE INJECTION (BEDIMET) 0.5% 500MG/100ML",
+    "uom": "PCS",
+    "price": 7.49956
+  },
+  {
+    "sku": "IMP0000027",
+    "description": "ARTESUNATE INJ. (BEDINATE) 120MG",
+    "uom": "PK",
+    "price": 15.49962
+  },
+  {
+    "sku": "IMP0000028",
+    "description": "ARTESUNATE INJ. (BEDINATE) 30MG",
+    "uom": "PK",
+    "price": 8.50018
+  },
+  {
+    "sku": "IMP0000029",
+    "description": "ARTESUNATE INJ. (BEDINATE) 60MG",
+    "uom": "PK",
+    "price": 10.50023
+  },
+  {
+    "sku": "IMP0000030",
+    "description": "ARTEMETHER / LUMEFANTRINE (BEDITHER SUSP.) 120MG/5ML 60ML",
+    "uom": "BTL",
+    "price": 9.49908
+  },
+  {
+    "sku": "IMP0000031",
+    "description": "GLUCOSE INTRAVENOUS IV. (BLUE MAP D5) 500ML",
+    "uom": "PCS",
+    "price": 9.0
+  },
+  {
+    "sku": "IMP0000032",
+    "description": "SODIUM CHLORIDE & GLUCOSE IV. (BLUE MAP DNS) 500ML",
+    "uom": "PCS",
+    "price": 8.00009
+  },
+  {
+    "sku": "IMP0000033",
+    "description": "SODIUM CHLORIDE IV. (BLUE MAP NS) 500ML",
+    "uom": "PCS",
+    "price": 8.00008
+  },
+  {
+    "sku": "IMP0000034",
+    "description": "RINGER'S LACTATE IV. (BLUE MAP RL) 500ML",
+    "uom": "PCS",
+    "price": 8.00154
+  },
+  {
+    "sku": "IMP0000035",
+    "description": "OMEPRAZOLE SODIUM IV. (OMZOL) INJ. 40MG 10ML",
+    "uom": "PK",
+    "price": 7.49937
+  },
+  {
+    "sku": "IMP0000037",
+    "description": "AMOXICILLIN & POTASSIUM CLAVULANATE (BEDIMOX SUSP.) 228.5MG/5ML 70ML",
+    "uom": "BTL",
+    "price": 21.8019
+  },
+  {
+    "sku": "IMP0000038",
+    "description": "AMOXICILLIN & POTASSIUM CLAVULANATE (BEDIMOX SUSP.) 457MG/5ML 70ML",
+    "uom": "BTL",
+    "price": 29.89895
+  },
+  {
+    "sku": "IMP0000041",
+    "description": "BEDIN 30MG 30's",
+    "uom": "PK",
+    "price": 15.0
+  },
+  {
+    "sku": "IMP0000044",
+    "description": "COLDIRON SYRUP 125ML",
+    "uom": "BTL",
+    "price": 22.49914
+  },
+  {
+    "sku": "IMP0000045",
+    "description": "CEFUROXIME (FUXIME SUSP.) 125MG/5ML 70ML",
+    "uom": "BTL",
+    "price": 13.0
+  },
+  {
+    "sku": "IMP0000046",
+    "description": "CEFUROXIME (FUXIME SUSP.) 125MG/5ML 50ML",
+    "uom": "BTL",
+    "price": 23.50106
+  },
+  {
+    "sku": "IMP0000047",
+    "description": "KIDIRON SYRUP 200ML",
+    "uom": "BTL",
+    "price": 25.0
+  },
+  {
+    "sku": "IMP0000048",
+    "description": "OMEPRAZOLE (OMZOL) CAPS 20MG 30's",
+    "uom": "PK",
+    "price": 14.8018
+  },
+  {
+    "sku": "IMP0000049",
+    "description": "RONVIT BODY 200GM",
+    "uom": "TIN",
+    "price": 25.0
+  },
+  {
+    "sku": "IMP0000050",
+    "description": "ULCIRON SUSP. 200ML",
+    "uom": "BTL",
+    "price": 17.50145
+  },
+  {
+    "sku": "IMP0000052",
+    "description": "V2 DELAY SPRAY 15G",
+    "uom": "PCS",
+    "price": 13.0
+  },
+  {
+    "sku": "IMP0000054",
+    "description": "CHLORAMPHENICOL (CHOPE EYE DROPS) 0.5% 10ML",
+    "uom": "PCS",
+    "price": 4.79925
+  },
+  {
+    "sku": "IMP0000055",
+    "description": "CIPROFLOXACIN EYE & EAR DROPS 5ML",
+    "uom": "PCS",
+    "price": 5.79971
+  },
+  {
+    "sku": "IMP0000056",
+    "description": "GENTAMYCIN SULPHATE (GENDA EYE/EAR DROPS) 0.3% 10ML",
+    "uom": "PCS",
+    "price": 4.80034
+  },
+  {
+    "sku": "IMP0000058",
+    "description": "AZITHROMYCIN (AZIVID) 250MG 30's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000062",
+    "description": "CHEWETTE C  EFF. 36 SACHETS X 7.9G 1000MG",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000064",
+    "description": "CHEWETTE C 100MG 100's",
+    "uom": "BTL",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000065",
+    "description": "CHEWETTE C MONKEY (B/C, ORANGE) 100MG 100's",
+    "uom": "PCS",
+    "price": 40.0
+  },
+  {
+    "sku": "IMP0000066",
+    "description": "CHEWETTE C 60X12's",
+    "uom": "BOX",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000068",
+    "description": "CLOFENAC 50MG 100's",
+    "uom": "PK",
+    "price": 13.0
+  },
+  {
+    "sku": "IMP0000070",
+    "description": "CEFUROXIME (CMAXID) INJ. 750MG 10ML",
+    "uom": "PK",
+    "price": 31.63
+  },
+  {
+    "sku": "IMP0000071",
+    "description": "CEFUROXIME (CMAXID) TABS 250MG 10's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000072",
+    "description": "CEFUROXIME (CMAXID) TABS 500MG 10's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000074",
+    "description": "HYDROCORTISONE B.P. (CORTISONE CREAM)1% 15G",
+    "uom": "TUBE",
+    "price": 20.9
+  },
+  {
+    "sku": "IMP0000075",
+    "description": "AMLODIPINE BESILATE (DEROX-10) 10MG 30's",
+    "uom": "PK",
+    "price": 16.50091
+  },
+  {
+    "sku": "IMP0000083",
+    "description": "FLUCOR DAY GEL 8's",
+    "uom": "PK",
+    "price": 33.6
+  },
+  {
+    "sku": "IMP0000085",
+    "description": "FLUCOR NIGHT GEL 8's",
+    "uom": "PK",
+    "price": 33.6
+  },
+  {
+    "sku": "IMP0000086",
+    "description": "GASCIVID ADVANCE LIQUID 150ML",
+    "uom": "BTL",
+    "price": 49.99864
+  },
+  {
+    "sku": "IMP0000087",
+    "description": "GASCIVID LIQUID 150ML",
+    "uom": "BTL",
+    "price": 35.00053
+  },
+  {
+    "sku": "IMP0000090",
+    "description": "BLOOD GLUCOSE TEST STRIP (GLUCOMATE COMPLETE) 50's",
+    "uom": "PK",
+    "price": 100.0
+  },
+  {
+    "sku": "IMP0000091",
+    "description": "BLOOD GLUCOSE MONITORING SYSTEM WITH LANCET (GLUCOMATE II)",
+    "uom": "PK",
+    "price": 235.0
+  },
+  {
+    "sku": "IMP0000093",
+    "description": "HOFTREX INJ. 1G",
+    "uom": "PK",
+    "price": 20.4
+  },
+  {
+    "sku": "IMP0000099",
+    "description": "VITAMIN E (HOVID) 200IU 180's",
+    "uom": "BTL",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000100",
+    "description": "VITAMIN E (HOVID) 400IU 120's",
+    "uom": "BTL",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000101",
+    "description": "HOVID KETOCONAZOLE 200MG 100's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000102",
+    "description": "KETOVID CREAM KETOCONAZOLE 2% 15G",
+    "uom": "TUBE",
+    "price": 36.00138
+  },
+  {
+    "sku": "IMP0000105",
+    "description": "LORATYN-10 MICRONISED LORATADINE 10MG 100's",
+    "uom": "PK",
+    "price": 45.00214
+  },
+  {
+    "sku": "IMP0000109",
+    "description": "NEUROVIT FORTE TABS 100's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000110",
+    "description": "O'YES FEMININE HYGIENE WASH 200ML",
+    "uom": "PCS",
+    "price": 63.508
+  },
+  {
+    "sku": "IMP0000111",
+    "description": "O'YES FEMININE HYGIENE WASH 60ML",
+    "uom": "PCS",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000113",
+    "description": "HOVID QUICKLEAN HAND GEL 50ML",
+    "uom": "PCS",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000114",
+    "description": "RICAM CETIRIZINE HCI 10MG 100's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000115",
+    "description": "TINACORT MICONAZOLE NITRATE HYDROCORTISONE 2%/1% 15G",
+    "uom": "TUBE",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000116",
+    "description": "TINAZOL MICONAZOLE NITRATE CREAM B.P 2% 15G",
+    "uom": "TUBE",
+    "price": 20.0
+  },
+  {
+    "sku": "IMP0000117",
+    "description": "TOCOVID SUPRABIO TOCOTRIENOLS 100MG 60's",
+    "uom": "PK",
+    "price": 300.0
+  },
+  {
+    "sku": "IMP0000118",
+    "description": "TOCOVID SUPRABIO TOCOTRIENOLS 200MG 30's",
+    "uom": "PK",
+    "price": 650.02013
+  },
+  {
+    "sku": "IMP0000119",
+    "description": "TOCOVID SUPRABIO TOCOTRIENOLS 50MG 30's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000120",
+    "description": "ULTIMAX CREAM 30G",
+    "uom": "TUBE",
+    "price": 27.59494
+  },
+  {
+    "sku": "IMP0000121",
+    "description": "VIREST CREAM ACICLOVIR 5% 5G",
+    "uom": "TUBE",
+    "price": 27.99699
+  },
+  {
+    "sku": "IMP0000128",
+    "description": "DEXAMATHASONE INTRAVITREAL (OZURDEX INJ) 0.7MG",
+    "uom": "VIAL",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000129",
+    "description": "SEVOFLURANE INH. (ULTANE) 250ML",
+    "uom": "BTL",
+    "price": 2000.0
+  },
+  {
+    "sku": "IMP0000131",
+    "description": "FUGEN MAN SUPER VEGA HERBAL ULTRAMAX TAB",
+    "uom": "BTL",
+    "price": 38.0
+  },
+  {
+    "sku": "IMP0000132",
+    "description": "FUGEN OMEGA-3 FATTY ACIDS CAPS",
+    "uom": "BTL",
+    "price": 25.0
+  },
+  {
+    "sku": "IMP0000133",
+    "description": "PREGNARON (FUGEN) ORIGINAL TABS",
+    "uom": "PK",
+    "price": 20.0
+  },
+  {
+    "sku": "IMP0000134",
+    "description": "VITAMIN C + ZINC EFF. (FUGEN) 1000MG 20's",
+    "uom": "TIN",
+    "price": 32.0
+  },
+  {
+    "sku": "IMP0000135",
+    "description": "VITAMIN C (FUGEN) GUMMIES- ORANGE 100MG",
+    "uom": "BTL",
+    "price": 35.0
+  },
+  {
+    "sku": "IMP0000136",
+    "description": "VITAMIN C (FUGEN) CHEWABLE 500MG",
+    "uom": "BTL",
+    "price": 14.0
+  },
+  {
+    "sku": "IMP0000142",
+    "description": "VITAMIN C (FUGEN) LOZENGES ORANGE 50MG",
+    "uom": "PK",
+    "price": 7.0
+  },
+  {
+    "sku": "IMP0000143",
+    "description": "VITAMIN D3 (FUGEN) SOFTGEL 1000IU",
+    "uom": "BTL",
+    "price": 16.0
+  },
+  {
+    "sku": "IMP0000144",
+    "description": "VITAMIN D3 (FUGEN) SOFTGEL 5000IU",
+    "uom": "BTL",
+    "price": 20.0
+  },
+  {
+    "sku": "IMP0000145",
+    "description": "ZINC (FUGEN) FILM COATED TABS 50MG",
+    "uom": "BTL",
+    "price": 18.0
+  },
+  {
+    "sku": "IMP0000146",
+    "description": "ARZIGLOBIN CAPS 30's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000147",
+    "description": "ARZIGLOBIN PLUS CAPS 30's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000148",
+    "description": "ARZIGLOBIN PLUS SYRUP 200ML",
+    "uom": "BTL",
+    "price": 23.00216
+  },
+  {
+    "sku": "IMP0000149",
+    "description": "ARZIGLOBIN SYRUP 200ML",
+    "uom": "BTL",
+    "price": 20.99
+  },
+  {
+    "sku": "IMP0000154",
+    "description": "GYPRONE PLUS SYRUP 200ML",
+    "uom": "BTL",
+    "price": 19.99908
+  },
+  {
+    "sku": "IMP0000156",
+    "description": "LADINAS TABS 20's",
+    "uom": "PK",
+    "price": 10.00113
+  },
+  {
+    "sku": "IMP0000157",
+    "description": "ARTEMETHER 80MG LUMEFANTRINE 480MG (MALAFENTRINE DS) TABS 6's",
+    "uom": "PK",
+    "price": 13.0
+  },
+  {
+    "sku": "IMP0000158",
+    "description": "ARTEMETHER 20MG LUMEFANTRINE 120MG (MALAFENTRINE) TABS 24's",
+    "uom": "PK",
+    "price": 10.79946
+  },
+  {
+    "sku": "IMP0000159",
+    "description": "PAIN HEAT GEL 30G",
+    "uom": "TUBE",
+    "price": 7.19946
+  },
+  {
+    "sku": "IMP0000160",
+    "description": "SOCOGYL PLUS SYRUP 100ML",
+    "uom": "BTL",
+    "price": 12.0
+  },
+  {
+    "sku": "IMP0000163",
+    "description": "VESTAMIN SYRUP 200ML",
+    "uom": "BTL",
+    "price": 29.99935
+  },
+  {
+    "sku": "IMP0000164",
+    "description": "ADULT DIAPERS LARGE 10's",
+    "uom": "PK",
+    "price": 39.0
+  },
+  {
+    "sku": "IMP0000165",
+    "description": "ADULT DIAPERS EXTRA LARGE 10's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000166",
+    "description": "ARM BLOOD PRESSURE MONITOR (DBP-1231)",
+    "uom": "PCS",
+    "price": 190.0
+  },
+  {
+    "sku": "IMP0000167",
+    "description": "FLUFFFY COTTON WOOL (SUGAMA) 100G",
+    "uom": "PCS",
+    "price": 11.0
+  },
+  {
+    "sku": "IMP0000168",
+    "description": "FLUFFFY COTTON WOOL (SUGAMA) 200G",
+    "uom": "PCS",
+    "price": 18.0004
+  },
+  {
+    "sku": "IMP0000169",
+    "description": "FLUFFFY COTTON WOOL (SUGAMA) 500G",
+    "uom": "PK",
+    "price": 37.00181
+  },
+  {
+    "sku": "IMP0000170",
+    "description": "FLUFFFY COTTON WOOL (SUGAMA) 50G",
+    "uom": "PCS",
+    "price": 5.99996
+  },
+  {
+    "sku": "IMP0000171",
+    "description": "CREPE BANDAGE (SUGAMA) 3\" x4.5M",
+    "uom": "PCS",
+    "price": 4.50043
+  },
+  {
+    "sku": "IMP0000176",
+    "description": "FIRST AID BOX",
+    "uom": "BOX",
+    "price": 35.0
+  },
+  {
+    "sku": "IMP0000177",
+    "description": "GAUZE BANDAGES (SUGAMA) 4\" x3YDS 12 ROLLS",
+    "uom": "PK",
+    "price": 17.00111
+  },
+  {
+    "sku": "IMP0000179",
+    "description": "GAUZE ROLL (SUGAMA) 36' x100YARDS 1 ROLL",
+    "uom": "PCS",
+    "price": 292.0
+  },
+  {
+    "sku": "IMP0000180",
+    "description": "GAUZE ROLL (SUGAMA) 36' x50YARDS 1 ROLL",
+    "uom": "PCS",
+    "price": 238.0
+  },
+  {
+    "sku": "IMP0000181",
+    "description": "HIGH ELASTIC CREPE BANDAGE (SUGAMA) 3\"",
+    "uom": "PCS",
+    "price": 4.4
+  },
+  {
+    "sku": "IMP0000182",
+    "description": "HIGH ELASTIC CREPE BANDAGE (SUGAMA) 4\"",
+    "uom": "PCS",
+    "price": 6.49956
+  },
+  {
+    "sku": "IMP0000183",
+    "description": "HIGH ELASTIC CREPE BANDAGE (SUGAMA) 6\"",
+    "uom": "PCS",
+    "price": 9.5
+  },
+  {
+    "sku": "IMP0000185",
+    "description": "STERILE WOUND PLASTER (SUGAMA) 72x19MM 100's",
+    "uom": "PK",
+    "price": 8.0
+  },
+  {
+    "sku": "IMP0000186",
+    "description": "ZINC OXIDE ADHESIVE PLASTER (SUGAMA) 2.5CM x5M 1\" x5.5YDS 12ROLLS",
+    "uom": "PCS",
+    "price": 3.19
+  },
+  {
+    "sku": "IMP0000187",
+    "description": "ZINC OXIDE ADHESIVE PLASTER (SUGAMA) 5CM x5M 2\" x5.5YDS 6ROLLS",
+    "uom": "PCS",
+    "price": 13.0
+  },
+  {
+    "sku": "IMP0000188",
+    "description": "ZINC OXIDE ADHESIVE PLASTER (SUGAMA) 7.5CM x5M 3\" x5.5YDS 6ROLLS",
+    "uom": "PCS",
+    "price": 18.8
+  },
+  {
+    "sku": "IMP0000189",
+    "description": "ZINC OXIDE ADHESIVE PLASTER (SUGAMA) 10CM x5M 4\" x5.5YDS 6ROLLS",
+    "uom": "PCS",
+    "price": 24.0
+  },
+  {
+    "sku": "IMP0000221",
+    "description": "DISPOSABLE GIVING SET",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000223",
+    "description": "BLOOD GLUCOSE TEST STRIPS (CODEFREE) 50's",
+    "uom": "PK",
+    "price": 198.0079
+  },
+  {
+    "sku": "IMP0000224",
+    "description": "PARACETAMOL INFUSION (BEDIMOL) 1GM/100ML",
+    "uom": "BOX",
+    "price": 16.00162
+  },
+  {
+    "sku": "IMP0000225",
+    "description": "SILDENAFIL (BEDISYL) 100MG ORAL JELLY",
+    "uom": "PK",
+    "price": 11.5022
+  },
+  {
+    "sku": "IMP0000230",
+    "description": "ARTEMETHER 20MG LUMEFANTRINE 120MG (MALAFENTRINE  SUSP.) 60ML",
+    "uom": "BTL",
+    "price": 10.29966
+  },
+  {
+    "sku": "IMP0000231",
+    "description": "IBUPROFEN 200MG/DIPHENHYDRAMINE CITRATE 30MG (ADVIL) PM 50's",
+    "uom": "PCS",
+    "price": 300.0
+  },
+  {
+    "sku": "IMP0000233",
+    "description": "ZAMO PINE DISINFECTANT 340ML",
+    "uom": "PCS",
+    "price": 23.0
+  },
+  {
+    "sku": "IMP0000234",
+    "description": "ZAMO PINE DISINFECTANT 500ML",
+    "uom": "PCS",
+    "price": 26.92
+  },
+  {
+    "sku": "IMP0000236",
+    "description": "LISTERINE MOUTHWASH LIME & MINT 500ML",
+    "uom": "BTL",
+    "price": 50.0
+  },
+  {
+    "sku": "IMP0000238",
+    "description": "LISTERINE MOUTHWASH SPEARMINT 600ML",
+    "uom": "PCS",
+    "price": 61.43
+  },
+  {
+    "sku": "IMP0000239",
+    "description": "LISTERINE MOUTHWASH MILD & MINTY 500ML",
+    "uom": "PCS",
+    "price": 50.00294
+  },
+  {
+    "sku": "IMP0000249",
+    "description": "CEFTRIAXONE (BEDICEF INJECTION) 1GM 10ML",
+    "uom": "PK",
+    "price": 4.99968
+  },
+  {
+    "sku": "IMP0000250",
+    "description": "AMOXICILLIN & POTASSIUM CLAVULANATE (BEDIMOX INJ.) 1.2GM 20ML",
+    "uom": "PK",
+    "price": 18.50052
+  },
+  {
+    "sku": "IMP0000251",
+    "description": "CEFUROXIME (FUXIME INJECTION.) 750MG 30ML",
+    "uom": "PK",
+    "price": 13.00147
+  },
+  {
+    "sku": "IMP0000252",
+    "description": "AMOXICILLIN & POTASSIUM CLAVULANATE (BEDIMOX INJ.) 600MG 10ML",
+    "uom": "PK",
+    "price": 12.50129
+  },
+  {
+    "sku": "IMP0000254",
+    "description": "KOMIX COUGH SYRUP SACHETS 7ML",
+    "uom": "PK",
+    "price": 43.00117
+  },
+  {
+    "sku": "IMP0000256",
+    "description": "HAND GRIP",
+    "uom": "PCS",
+    "price": 30.50435
+  },
+  {
+    "sku": "IMP0000257",
+    "description": "YUBI LAX GERMA (FINGER MASSAGER)",
+    "uom": "PCS",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000259",
+    "description": "ACETAMINOPHEN (BEDIMOL SUPP.) 250MG 10's",
+    "uom": "PK",
+    "price": 8.72886
+  },
+  {
+    "sku": "IMP0000262",
+    "description": "ARTEMETHER 20MG LUMEFANTRINE 120MG (BEDITHER) TABS 24's",
+    "uom": "PK",
+    "price": 9.79665
+  },
+  {
+    "sku": "IMP0000263",
+    "description": "ARTEMETHER 40MG LUMEFANTRINE 240MG (BEDITHER DS) TABS 12's",
+    "uom": "PK",
+    "price": 9.60092
+  },
+  {
+    "sku": "IMP0000264",
+    "description": "ARTEMETHER 80MG LUMEFANTRINE  (BEDITHER FORTE) TABS 6's",
+    "uom": "PK",
+    "price": 9.30049
+  },
+  {
+    "sku": "IMP0000265",
+    "description": "EXTRA JOSS ACTIVE ENERGY DRINK POWDER",
+    "uom": "PK",
+    "price": 8.50052
+  },
+  {
+    "sku": "IMP0000266",
+    "description": "EXTRA JOSS ACTIVE ENERGY DRINK POWDER (FREE)",
+    "uom": "PK",
+    "price": 0.16761
+  },
+  {
+    "sku": "IMP0000311",
+    "description": "VOLPECOLD SYRUP 60ML",
+    "uom": "BTL",
+    "price": 9.4991
+  },
+  {
+    "sku": "IMP0000325",
+    "description": "AMOXICILLIN & POTASSIUM CLAVULANATE (BEDIMOX) TABS 1GM 10's",
+    "uom": "PK",
+    "price": 45.00527
+  },
+  {
+    "sku": "IMP0000326",
+    "description": "NIFEDIPINE (BEDIN 20) TABS 20MG 100's",
+    "uom": "PK",
+    "price": 15.0
+  },
+  {
+    "sku": "IMP0000327",
+    "description": "METFORMIN (DIABETMIN) TABS 500MG 100's",
+    "uom": "PK",
+    "price": 40.00147
+  },
+  {
+    "sku": "IMP0000328",
+    "description": "VITAMIN C (FUGEN) CANDY CHERRY 50MG",
+    "uom": "PK",
+    "price": 50.0
+  },
+  {
+    "sku": "IMP0000329",
+    "description": "VITAMIN C (FUGEN) CANDY LEMON & HONEY 50MG",
+    "uom": "PK",
+    "price": 50.0
+  },
+  {
+    "sku": "IMP0000330",
+    "description": "VITAMIN C (FUGEN) CANDY ORANGE 50MG",
+    "uom": "PK",
+    "price": 50.0
+  },
+  {
+    "sku": "IMP0000331",
+    "description": "SILDENAFIL (BEDISYL) TABS 100MG",
+    "uom": "PCS",
+    "price": 8.0
+  },
+  {
+    "sku": "IMP0000332",
+    "description": "SILDENAFIL (BEDISYL) TABS 50MG",
+    "uom": "PK",
+    "price": 5.0
+  },
+  {
+    "sku": "IMP0000333",
+    "description": "METFORMIN (DIABETAGE) TABS 500MG 100's",
+    "uom": "PK",
+    "price": 20.0
+  },
+  {
+    "sku": "IMP0000334",
+    "description": "ACETAMINOPHEN (BEDIMOL) SUPP. 125MG 10's",
+    "uom": "PK",
+    "price": 10.5
+  },
+  {
+    "sku": "IMP0000335",
+    "description": "DICLOFENAC SODIUM (BEDIC) SUPP. 100MG 10's",
+    "uom": "PK",
+    "price": 11.2
+  },
+  {
+    "sku": "IMP0000336",
+    "description": "ARTEMETHER INJECTION (BEDART INJECTION) 80MG/1ML 10's",
+    "uom": "PK",
+    "price": 23.0
+  },
+  {
+    "sku": "IMP0000337",
+    "description": "GLIBENCLAMIDE (CLAMIDE) TABS 5MG 100's",
+    "uom": "PK",
+    "price": 34.99921
+  },
+  {
+    "sku": "IMP0000338",
+    "description": "ACICLOVIR (VIREST) TABS 200MG 25's",
+    "uom": "PK",
+    "price": 75.01227
+  },
+  {
+    "sku": "IMP0000339",
+    "description": "TRANEXAMIC ACID (BEDIMIC INJECTION) 500MG 5ML 5's",
+    "uom": "PK",
+    "price": 42.5
+  },
+  {
+    "sku": "IMP0000340",
+    "description": "NEFOPAM HYDROCHLORIDE (ACUPAN) 20MG 5's",
+    "uom": "PK",
+    "price": 124.25644
+  },
+  {
+    "sku": "IMP0000341",
+    "description": "VOLPECOLD TABS 25X1X4",
+    "uom": "PK",
+    "price": 38.0
+  },
+  {
+    "sku": "IMP0000342",
+    "description": "PARA + DICLOFENAC SODIUM (VOLPE) 10X10",
+    "uom": "PK",
+    "price": 25.0
+  },
+  {
+    "sku": "IMP0000343",
+    "description": "CARBAMAZIPINE (CARZEPIN) 200MG 100's",
+    "uom": "PK",
+    "price": 105.01701
+  },
+  {
+    "sku": "IMP0000344",
+    "description": "METHYL-DOPA (DOPATAB) 250MG 100's",
+    "uom": "PK",
+    "price": 149.98567
+  },
+  {
+    "sku": "IMP0000345",
+    "description": "DOXYCYCLINE (DOXYCAP) 100's",
+    "uom": "PK",
+    "price": 112.0
+  },
+  {
+    "sku": "IMP0000346",
+    "description": "PIROXICAM (FELXICAM) 20MG 100's",
+    "uom": "PK",
+    "price": 50.0
+  },
+  {
+    "sku": "IMP0000347",
+    "description": "MEFENAMIC ACID (HOSTAN) 250MG 100's",
+    "uom": "PK",
+    "price": 87.0
+  },
+  {
+    "sku": "IMP0000348",
+    "description": "HOVID CELECOXIB 30's",
+    "uom": "PK",
+    "price": 65.00403
+  },
+  {
+    "sku": "IMP0000349",
+    "description": "LORATYN-10 MICRONISED LORATADINE 10MG 20's",
+    "uom": "PK",
+    "price": 30.0
+  },
+  {
+    "sku": "IMP0000350",
+    "description": "WOODS LOZENGES CHERRY",
+    "uom": "PK",
+    "price": 117.0
+  },
+  {
+    "sku": "IMP0000351",
+    "description": "WOODS LOZENGES ORIGINAL",
+    "uom": "PK",
+    "price": 117.0
+  },
+  {
+    "sku": "IMP0000352",
+    "description": "GYPRONE PLUS TAB (25X1X20)",
+    "uom": "PK",
+    "price": 115.0
+  },
+  {
+    "sku": "IMP0000353",
+    "description": "CREPE BANDAGE (SUGAMA) 4\" X 4.5M",
+    "uom": "PK",
+    "price": 7.8
+  },
+  {
+    "sku": "IMP0000354",
+    "description": "CREPE BANDAGE (SUGAMA) 6\" X 4.5M",
+    "uom": "PK",
+    "price": 8.0
+  },
+  {
+    "sku": "IMP0000355",
+    "description": "DISPOSABLE SYRINGE 5ML/CC 100's",
+    "uom": "PK",
+    "price": 35.0
+  },
+  {
+    "sku": "IMP0000356",
+    "description": "BEDICOLD TABS 50X1X4",
+    "uom": "BOX",
+    "price": 45.00405
+  },
+  {
+    "sku": "IMP0000357",
+    "description": "BEDICOLD COLD & COUGH TABS 25X1X4",
+    "uom": "BOX",
+    "price": 28.0
+  },
+  {
+    "sku": "IMP0000358",
+    "description": "NIFEDIPINE (BEDIN 30) 30MG 30's",
+    "uom": "PK",
+    "price": 20.0006
+  },
+  {
+    "sku": "IMP0000359",
+    "description": "TADALAFIL (V20) 20MG 4's",
+    "uom": "PK",
+    "price": 8.5
+  },
+  {
+    "sku": "IMP0000360",
+    "description": "SOCOMOL EXTRA TABS 10X1X10",
+    "uom": "PK",
+    "price": 40.0
+  },
+  {
+    "sku": "IMP0000361",
+    "description": "AMLODIPINE (DEROX- 5) 5MG 30's",
+    "uom": "PK",
+    "price": 12.5
+  },
+  {
+    "sku": "IMP0000362",
+    "description": "LOPERAMIDE HYDROCHLORIDE (COLODIUM) 2MG 100's",
+    "uom": "PK",
+    "price": 44.99713
+  },
+  {
+    "sku": "IMP0000363",
+    "description": "HIGH STRENGTH VIT B1,B6,B12 (BIOVID FORTE) 100's",
+    "uom": "PK",
+    "price": 280.0285
+  },
+  {
+    "sku": "IMP0000364",
+    "description": "ACICLOVIR (VIREST) 400MG 25's",
+    "uom": "PK",
+    "price": 101.0
+  },
+  {
+    "sku": "IMP0000365",
+    "description": "CARBIMAZOLE (CARBIROID) 5MG 100's",
+    "uom": "PK",
+    "price": 85.02464
+  },
+  {
+    "sku": "IMP0000366",
+    "description": "DICLOFENAC (CLOFENAC SR) 100MG 100's",
+    "uom": "PK",
+    "price": 55.0
+  },
+  {
+    "sku": "IMP0000367",
+    "description": "GAUZE BANDAGES (SUGAMA) 6\" x 3YDS 12 ROLLS",
+    "uom": "PK",
+    "price": 28.0
+  },
+  {
+    "sku": "IMP0000368",
+    "description": "HYDROCORTISONE (BEDICORT INJ.) 100MG 10 VIALS",
+    "uom": "PK",
+    "price": 64.99715
+  },
+  {
+    "sku": "IMP0000369",
+    "description": "AMOXICILLIN & POTASSIUM CLAVUNATE (BEDIMOX 625) TABS 14's",
+    "uom": "PK",
+    "price": 48.0
+  },
+  {
+    "sku": "IMP0000370",
+    "description": "OXYTOCIN (BEDICIN) 10IU/ML 1ML 10's",
+    "uom": "PK",
+    "price": 100.00022
+  },
+  {
+    "sku": "IMP0000371",
+    "description": "WOODS PEPPERMINT COUGH SYRUP 30 SACHETS 7ML",
+    "uom": "PK",
+    "price": 43.00137
+  },
+  {
+    "sku": "IMP0000372",
+    "description": "NEW SOCOMOL TAB 20X1X10",
+    "uom": "PK",
+    "price": 39.99854
+  },
+  {
+    "sku": "IMP0000373",
+    "description": "VITAMIN C CANDY (FUGEN) GINGER 50MG 100's",
+    "uom": "JAR",
+    "price": 50.0
+  },
+  {
+    "sku": "IMP0000374",
+    "description": "BEDICOLD TABS 25X1X4",
+    "uom": "BOX",
+    "price": 20.0
+  },
+  {
+    "sku": "IMP0000375",
+    "description": "METFORMIN (DIABETMIN) 1000MG 100's",
+    "uom": "PK",
+    "price": 85.00776
+  },
+  {
+    "sku": "IMP0000376",
+    "description": "ATORVASTATIN (LIPIDUCE-10) 10MG 30's",
+    "uom": "PK",
+    "price": 74.2
+  },
+  {
+    "sku": "IMP0000377",
+    "description": "ATORVASTATIN (LIPIDUCE-20) 20MG 30's",
+    "uom": "PK",
+    "price": 139.6
+  },
+  {
+    "sku": "IMP0000378",
+    "description": "TRAMADOL HCL (PENGESIC) 50MG 100's",
+    "uom": "PK",
+    "price": 100.0
+  },
+  {
+    "sku": "IMP0000379",
+    "description": "ITRACONAZOLE (INOX) CAPS 100MG 28's",
+    "uom": "PK",
+    "price": 179.99997
+  },
+  {
+    "sku": "IMP0000380",
+    "description": "FUROSEMIDE (BEDIMIDE INJECTION) 20MG/2ML 10's",
+    "uom": "PK",
+    "price": 11.79933
+  },
+  {
+    "sku": "IMP0000381",
+    "description": "HYOSCINE BUTYLLBROMIDE (BEDIPAN INJECTION) 20MG/ML 10's",
+    "uom": "PK",
+    "price": 35.00234
+  },
+  {
+    "sku": "IMP0000382",
+    "description": "CEFUROXIME AXETIL (FUXIME) 250MG TABLETS 10's",
+    "uom": "PK",
+    "price": 29.49772
+  },
+  {
+    "sku": "IMP0000383",
+    "description": "CEFUROXIME AXETIL (FUXIME) 500MG TABLETS 10's",
+    "uom": "PK",
+    "price": 45.00241
+  },
+  {
+    "sku": "IMP0000384",
+    "description": "HOVID ROSUVASTATIN 20MG 30's",
+    "uom": "PK",
+    "price": 80.00716
+  },
+  {
+    "sku": "IMP0000385",
+    "description": "TOCOVID SUPRABIO PROMEMO SOFTGELS 30's",
+    "uom": "PK",
+    "price": 749.99925
+  },
+  {
+    "sku": "IMP0000386",
+    "description": "COUGH-EN LINCTUS BLACKCURRANT FLAVOUR 120ML",
+    "uom": "BTL",
+    "price": 47.50454
+  },
+  {
+    "sku": "IMP0000387",
+    "description": "TUSSIDEX FORTE LINCTUS  (SARSAPARILLA FLAVOUR) 120ML",
+    "uom": "BTL",
+    "price": 39.00385
+  },
+  {
+    "sku": "IMP0000388",
+    "description": "FEBRICOL TABLETS 20BP",
+    "uom": "PK",
+    "price": 41.99242
+  },
+  {
+    "sku": "IMP0000389",
+    "description": "WOODS PEPPERMINT ANTITUSSIVE COUGH SYRUP PLUS ANTIHISTAMINE 100ML",
+    "uom": "BTL",
+    "price": 35.0
+  },
+  {
+    "sku": "IMP0000390",
+    "description": "WOODS PEPPERMINT EXPECTORANT COUGH SYRUP PLUS MUCOLYTIC 100ML",
+    "uom": "BTL",
+    "price": 35.0
+  },
+  {
+    "sku": "IMP0000391",
+    "description": "CLINDAMYCIN 300MG/2ML (CINBED 300MG) INJECTION  2ML",
+    "uom": "PK",
+    "price": 10.0
+  },
+  {
+    "sku": "IMP0000392",
+    "description": "ARTEMETHER INJECTION (BEDART INJECTION) 80MG/1ML 6's",
+    "uom": "PK",
+    "price": 12.5
+  },
+  {
+    "sku": "IMP0000394",
+    "description": "CLOPIVID 75MG TAB 100's",
+    "uom": "PCS",
+    "price": 200.0
+  },
+  {
+    "sku": "IMP0000397",
+    "description": "GLIMAVID 2MG TAB",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000398",
+    "description": "CLOTRIMAZOLE 1% VAGINAL CREAM (VAGIBED) 30G",
+    "uom": "PCS",
+    "price": 7.8
+  },
+  {
+    "sku": "IMP0000399",
+    "description": "CLOTRIMAZOLE 2% VAGINAL CREAM (VAGIBED PLUS) 30G",
+    "uom": "PCS",
+    "price": 8.19954
+  },
+  {
+    "sku": "IMP0000400",
+    "description": "SILVER SULFADIAZINE 1% CREAM (BEDIZIN) 30G",
+    "uom": "PCS",
+    "price": 14.0
+  },
+  {
+    "sku": "IMP0000401",
+    "description": "TRIPLE ACTION CREAM (BEDIRON PLUS) 30G",
+    "uom": "PCS",
+    "price": 10.0
+  },
+  {
+    "sku": "IMP0000402",
+    "description": "ESOMEPRAZOLE (NEXPRAZOLE) 20MG CAPSULES 14's",
+    "uom": "PK",
+    "price": 58.49915
+  },
+  {
+    "sku": "IMP0000403",
+    "description": "SITAGLIPTIN + METFORMIN HCL 50MG/1000MG (JANTOVIA-M XR) TAB 14's",
+    "uom": "PK",
+    "price": 104.31373
+  },
+  {
+    "sku": "IMP0000404",
+    "description": "SITAGLIPTIN + METFORMIN HCL 50MG/500MG (JANTOVIA-M XR) TAB 14's",
+    "uom": "PK",
+    "price": 95.09237
+  },
+  {
+    "sku": "IMP0000405",
+    "description": "AMLODIPINE+VALSARTAN 5MG/80MG (VALDIP) TAB 14's",
+    "uom": "PK",
+    "price": 79.40299
+  },
+  {
+    "sku": "IMP0000407",
+    "description": "CIPROFLOXACIN 500MG (BEDICIP-500) TAB 10's",
+    "uom": "PK",
+    "price": 7.79971
+  },
+  {
+    "sku": "IMP0000408",
+    "description": "FENFEDRIN CAPS 7BP",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000409",
+    "description": "EZEDE -D ORAL SOLUTION 60ML",
+    "uom": "BTL",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000410",
+    "description": "DICLOFENAC 75MG (BEDIC-SR 75) CAPSULES 20's",
+    "uom": "PK",
+    "price": 8.49858
+  },
+  {
+    "sku": "IMP0000411",
+    "description": "DICLOFENAC 100MG (BEDIC-SR 100) CAPSULES 20's",
+    "uom": "PK",
+    "price": 12.5
+  },
+  {
+    "sku": "IMP0000412",
+    "description": "XYLOMETAZOLINE HYDROCHLORIDE (BIXTONIM XYLO) 0.5MG/ML NASAL SPRAY CHILDREN 2YEARS+ 10ML",
+    "uom": "BTL",
+    "price": 36.99912
+  },
+  {
+    "sku": "IMP0000413",
+    "description": "XYLOMETAZOLINE HYDROCHLORIDE (BIXTONIM XYLO) 1MG/ML NASAL SPRAY 10ML",
+    "uom": "BTL",
+    "price": 39.00625
+  },
+  {
+    "sku": "IMP0000414",
+    "description": "BIOFARM CHOLECALCIFEROL 18000IU/ML ORAL DROP SOLUTION (VITAMINA D3)",
+    "uom": "BTL",
+    "price": 61.00381
+  },
+  {
+    "sku": "IMP0000415",
+    "description": "HOVID ROSUVASTATIN 10MG TAB 30's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000417",
+    "description": "CLOTRIMAZOLE VAGINAL PESSARIES 100MG (VAGIBED-100) 7's",
+    "uom": "PK",
+    "price": 0.0
+  },
+  {
+    "sku": "IMP0000418",
+    "description": "CLOTRIMAZOLE VAGINAL PESSARIES 200MG (VAGIBED-200) 3's",
+    "uom": "PK",
+    "price": 3.3
+  },
+  {
+    "sku": "IMP0000420",
+    "description": "NEW SOCOMOL FIZZI D TAB 4X4's",
+    "uom": "PK",
+    "price": 15.0
+  }
+]
