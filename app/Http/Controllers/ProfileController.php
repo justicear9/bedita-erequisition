@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\ApprovalDelegation;
+use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,11 +23,45 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
+        $canDelegate = in_array($user->role, [UserRole::Manager, UserRole::InventoryManager], true);
+
+        $delegations = [];
+        $delegateCandidates = [];
+
+        if ($canDelegate) {
+            $delegations = ApprovalDelegation::query()
+                ->with(['delegate:id,name,email', 'delegator:id,name,email'])
+                ->where(function ($q) use ($user) {
+                    $q->where('delegator_id', $user->id)
+                        ->orWhere('delegate_id', $user->id);
+                })
+                ->latest()
+                ->get()
+                ->map(fn (ApprovalDelegation $d) => [
+                    'id' => $d->id,
+                    'delegator' => $d->delegator,
+                    'delegate' => $d->delegate,
+                    'starts_at' => $d->starts_at?->toDateString(),
+                    'ends_at' => $d->ends_at?->toDateString(),
+                    'active' => $d->isCurrentlyActive(),
+                    'is_mine' => $d->delegator_id === $user->id,
+                ]);
+
+            $delegateCandidates = User::query()
+                ->where('role', $user->role)
+                ->where('id', '!=', $user->id)
+                ->orderBy('name')
+                ->get(['id', 'name', 'email']);
+        }
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
             'signatureUrl' => $user->signature_url,
             'hasSignature' => $user->has_signature,
+            'canDelegate' => $canDelegate,
+            'delegations' => $delegations,
+            'delegateCandidates' => $delegateCandidates,
         ]);
     }
 

@@ -6,9 +6,12 @@ use App\Enums\RequisitionStatus;
 use App\Enums\UserRole;
 use App\Models\Requisition;
 use App\Models\User;
+use App\Services\DelegationService;
 
 class RequisitionPolicy
 {
+    public function __construct(private DelegationService $delegations) {}
+
     public function viewAny(User $user): bool
     {
         return true;
@@ -20,7 +23,8 @@ class RequisitionPolicy
             UserRole::Admin => true,
             UserRole::Requester => $requisition->requester_id === $user->id,
             UserRole::Manager => $requisition->department_id === $user->department_id
-                || $requisition->department?->manager_id === $user->id,
+                || $requisition->department?->manager_id === $user->id
+                || $this->delegations->canActAsDepartmentManager($user, $requisition),
             UserRole::InventoryManager, UserRole::Warehouse => true,
         };
     }
@@ -47,21 +51,20 @@ class RequisitionPolicy
 
     public function managerDecide(User $user, Requisition $requisition): bool
     {
-        return $user->role === UserRole::Manager
-            && $requisition->status === RequisitionStatus::PendingManager
-            && $requisition->department?->manager_id === $user->id;
+        return $requisition->status === RequisitionStatus::PendingManager
+            && $this->delegations->canActAsDepartmentManager($user, $requisition);
     }
 
     public function inventoryDecide(User $user, Requisition $requisition): bool
     {
-        return $user->role === UserRole::InventoryManager
-            && $requisition->status === RequisitionStatus::PendingInventory;
+        return $requisition->status === RequisitionStatus::PendingInventory
+            && $this->delegations->canMakeInventoryDecision($user);
     }
 
     public function inventoryReviewChanges(User $user, Requisition $requisition): bool
     {
-        return $user->role === UserRole::InventoryManager
-            && $requisition->status === RequisitionStatus::PendingInventoryChangeReview;
+        return $requisition->status === RequisitionStatus::PendingInventoryChangeReview
+            && $this->delegations->canMakeInventoryDecision($user);
     }
 
     public function warehouseFulfill(User $user, Requisition $requisition): bool

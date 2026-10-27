@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Requisition;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -30,6 +31,7 @@ class RequisitionWorkflowTest extends TestCase
     public function test_happy_path_release_without_line_changes(): void
     {
         Storage::fake('public');
+        Notification::fake();
 
         $department = Department::query()->create(['name' => 'Sales']);
         $manager = $this->withSignature(User::factory()->create([
@@ -101,6 +103,7 @@ class RequisitionWorkflowTest extends TestCase
     public function test_warehouse_changes_require_inventory_reapproval(): void
     {
         Storage::fake('public');
+        Notification::fake();
 
         $department = Department::query()->create(['name' => 'Sales']);
         $manager = $this->withSignature(User::factory()->create([

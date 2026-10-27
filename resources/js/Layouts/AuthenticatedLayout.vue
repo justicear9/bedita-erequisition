@@ -4,6 +4,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
+import NotificationBell from '@/Components/NotificationBell.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
 
@@ -73,8 +74,12 @@ const showingNavigationDropdown = ref(false);
                             </div>
                         </div>
 
-                        <div class="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div class="relative ms-3">
+                        <div class="hidden sm:ms-6 sm:flex sm:items-center sm:gap-2">
+                            <NotificationBell
+                                :unread-count="$page.props.unreadNotifications || 0"
+                                :vapid-public-key="$page.props.vapidPublicKey"
+                            />
+                            <div class="relative ms-1">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
@@ -121,7 +126,11 @@ const showingNavigationDropdown = ref(false);
                             </div>
                         </div>
 
-                        <div class="-me-2 flex items-center sm:hidden">
+                        <div class="-me-2 flex items-center gap-1 sm:hidden">
+                            <NotificationBell
+                                :unread-count="$page.props.unreadNotifications || 0"
+                                :vapid-public-key="$page.props.vapidPublicKey"
+                            />
                             <button
                                 class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:outline-none"
                                 @click="showingNavigationDropdown = !showingNavigationDropdown"

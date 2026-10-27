@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
+import DelegationForm from './Partials/DelegationForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
 import UpdateSignatureForm from './Partials/UpdateSignatureForm.vue';
@@ -11,6 +12,9 @@ defineProps({
     status: { type: String },
     signatureUrl: { type: String, default: null },
     hasSignature: { type: Boolean, default: false },
+    canDelegate: { type: Boolean, default: false },
+    delegations: { type: Array, default: () => [] },
+    delegateCandidates: { type: Array, default: () => [] },
 });
 </script>
 
@@ -28,6 +32,16 @@ defineProps({
                     <UpdateSignatureForm
                         :signature-url="signatureUrl"
                         :has-signature="hasSignature"
+                    />
+                </div>
+
+                <div
+                    v-if="canDelegate"
+                    class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8"
+                >
+                    <DelegationForm
+                        :delegations="delegations"
+                        :delegate-candidates="delegateCandidates"
                     />
                 </div>
 

@@ -6,12 +6,16 @@ use App\Enums\RequisitionStatus;
 use App\Enums\UserRole;
 use App\Models\Requisition;
 use App\Models\User;
+use App\Notifications\RequisitionStatusNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class RequisitionWorkflow
 {
-    public function __construct(private SignatureService $signatures) {}
+    public function __construct(
+        private SignatureService $signatures,
+        private DelegationService $delegations,
+    ) {}
 
     public function record(
         Requisition $requisition,
@@ -64,48 +68,93 @@ class RequisitionWorkflow
             'requester_signed_at' => now(),
         ]);
         $this->record($requisition, $actor, 'submitted', $from, RequisitionStatus::PendingManager);
+
+        $this->notifyMany(
+            $this->delegations->managerRecipients($requisition),
+            $requisition,
+            'pending_approval',
+            "{$requisition->number} needs your approval.",
+        );
     }
 
     public function managerApprove(Requisition $requisition, User $actor): void
     {
         $this->assertRole($actor, [UserRole::Manager]);
-        $this->assertDepartmentManager($requisition, $actor);
+        $this->assertCanActAsDepartmentManager($requisition, $actor);
         $this->assertStatus($requisition, [RequisitionStatus::PendingManager]);
         $this->assertHasSignature($actor);
 
         $from = $requisition->status;
         $path = $this->signatures->snapshotForRequisition($actor, 'manager-'.$requisition->id);
+        $principal = $this->delegations->departmentManagerPrincipal($requisition);
+        $delegateNote = $this->delegations->actingForNote($actor, $principal);
 
         $requisition->update([
             'status' => RequisitionStatus::PendingInventory,
             'manager_signature_path' => $path,
             'manager_signed_at' => now(),
         ]);
-        $this->record($requisition, $actor, 'manager_approved', $from, RequisitionStatus::PendingInventory);
+        $this->record(
+            $requisition,
+            $actor,
+            'manager_approved',
+            $from,
+            RequisitionStatus::PendingInventory,
+            $delegateNote,
+        );
+
+        $this->notifyMany(
+            $this->delegations->inventoryRecipients(),
+            $requisition,
+            'pending_approval',
+            "{$requisition->number} is ready for inventory review.",
+        );
     }
 
     public function managerSendBack(Requisition $requisition, User $actor, string $note): void
     {
         $this->assertRole($actor, [UserRole::Manager]);
-        $this->assertDepartmentManager($requisition, $actor);
+        $this->assertCanActAsDepartmentManager($requisition, $actor);
         $this->assertStatus($requisition, [RequisitionStatus::PendingManager]);
         $this->assertNote($note);
 
         $from = $requisition->status;
+        $principal = $this->delegations->departmentManagerPrincipal($requisition);
+        $delegateNote = $this->delegations->actingForNote($actor, $principal);
+        $fullNote = trim($note.($delegateNote ? "\n".$delegateNote : ''));
+
         $requisition->update(['status' => RequisitionStatus::ChangesRequested]);
-        $this->record($requisition, $actor, 'manager_sent_back', $from, RequisitionStatus::ChangesRequested, $note);
+        $this->record($requisition, $actor, 'manager_sent_back', $from, RequisitionStatus::ChangesRequested, $fullNote);
+
+        $this->notifyUser(
+            $requisition->requester,
+            $requisition,
+            'changes_requested',
+            "{$requisition->number} was sent back for changes.",
+        );
     }
 
     public function managerReject(Requisition $requisition, User $actor, string $reason): void
     {
         $this->assertRole($actor, [UserRole::Manager]);
-        $this->assertDepartmentManager($requisition, $actor);
+        $this->assertCanActAsDepartmentManager($requisition, $actor);
         $this->assertStatus($requisition, [RequisitionStatus::PendingManager]);
         $this->assertNote($reason, 'reason');
 
         $from = $requisition->status;
+        $principal = $this->delegations->departmentManagerPrincipal($requisition);
+        $delegateNote = $this->delegations->actingForNote($actor, $principal);
+        $fullNote = trim($reason.($delegateNote ? "\n".$delegateNote : ''));
+
         $requisition->update(['status' => RequisitionStatus::Rejected]);
-        $this->record($requisition, $actor, 'manager_rejected', $from, RequisitionStatus::Rejected, $reason);
+        $this->record($requisition, $actor, 'manager_rejected', $from, RequisitionStatus::Rejected, $fullNote);
+
+        $this->notifyUser(
+            $requisition->requester,
+            $requisition,
+            'rejected',
+            "{$requisition->number} was rejected.",
+        );
     }
 
     public function inventoryApprove(Requisition $requisition, User $actor): void
@@ -123,6 +172,13 @@ class RequisitionWorkflow
             'inventory_signed_at' => now(),
         ]);
         $this->record($requisition, $actor, 'inventory_approved', $from, RequisitionStatus::ReadyForWarehouse);
+
+        $this->notifyMany(
+            $this->delegations->warehouseRecipients(),
+            $requisition,
+            'ready_for_warehouse',
+            "{$requisition->number} is ready for warehouse release.",
+        );
     }
 
     public function inventorySendBack(Requisition $requisition, User $actor, string $note): void
@@ -134,6 +190,13 @@ class RequisitionWorkflow
         $from = $requisition->status;
         $requisition->update(['status' => RequisitionStatus::ChangesRequested]);
         $this->record($requisition, $actor, 'inventory_sent_back', $from, RequisitionStatus::ChangesRequested, $note);
+
+        $this->notifyUser(
+            $requisition->requester,
+            $requisition,
+            'changes_requested',
+            "{$requisition->number} was sent back for changes.",
+        );
     }
 
     public function inventoryReject(Requisition $requisition, User $actor, string $reason): void
@@ -148,6 +211,13 @@ class RequisitionWorkflow
         $from = $requisition->status;
         $requisition->update(['status' => RequisitionStatus::Rejected]);
         $this->record($requisition, $actor, 'inventory_rejected', $from, RequisitionStatus::Rejected, $reason);
+
+        $this->notifyUser(
+            $requisition->requester,
+            $requisition,
+            'rejected',
+            "{$requisition->number} was rejected.",
+        );
     }
 
     /**
@@ -173,6 +243,13 @@ class RequisitionWorkflow
                     'Line changes submitted for inventory approval.',
                 );
 
+                $this->notifyMany(
+                    $this->delegations->inventoryRecipients(),
+                    $requisition,
+                    'change_review',
+                    "{$requisition->number} has warehouse changes awaiting approval.",
+                );
+
                 return;
             }
 
@@ -185,6 +262,13 @@ class RequisitionWorkflow
                 'warehouse_signed_at' => now(),
             ]);
             $this->record($requisition, $actor, 'warehouse_released', $from, RequisitionStatus::Released);
+
+            $this->notifyUser(
+                $requisition->requester,
+                $requisition,
+                'released',
+                "{$requisition->number} has been released.",
+            );
         });
     }
 
@@ -210,6 +294,13 @@ class RequisitionWorkflow
                 'change_reason' => null,
             ]);
         }
+
+        $this->notifyMany(
+            $this->delegations->warehouseRecipients(),
+            $requisition,
+            'ready_for_warehouse',
+            "{$requisition->number} changes approved — ready for final release.",
+        );
     }
 
     public function inventorySendChangesBackToWarehouse(Requisition $requisition, User $actor, string $note): void
@@ -227,6 +318,13 @@ class RequisitionWorkflow
             $from,
             RequisitionStatus::ReadyForWarehouse,
             $note,
+        );
+
+        $this->notifyMany(
+            $this->delegations->warehouseRecipients(),
+            $requisition,
+            'ready_for_warehouse',
+            "{$requisition->number} was sent back to warehouse: {$note}",
         );
     }
 
@@ -280,6 +378,25 @@ class RequisitionWorkflow
         return $hasChanges;
     }
 
+    private function notifyUser(?User $user, Requisition $requisition, string $kind, string $message): void
+    {
+        if (! $user) {
+            return;
+        }
+
+        $user->notify(new RequisitionStatusNotification($requisition, $kind, $message));
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, User>  $users
+     */
+    private function notifyMany($users, Requisition $requisition, string $kind, string $message): void
+    {
+        foreach ($users as $user) {
+            $this->notifyUser($user, $requisition, $kind, $message);
+        }
+    }
+
     private function assertHasSignature(User $actor): void
     {
         if (! $actor->signature_path) {
@@ -303,10 +420,10 @@ class RequisitionWorkflow
         }
     }
 
-    private function assertDepartmentManager(Requisition $requisition, User $actor): void
+    private function assertCanActAsDepartmentManager(Requisition $requisition, User $actor): void
     {
-        if ($requisition->department?->manager_id !== $actor->id) {
-            abort(403, 'You are not the manager for this department.');
+        if (! $this->delegations->canActAsDepartmentManager($actor, $requisition)) {
+            abort(403, 'You are not the manager (or an active delegate) for this department.');
         }
     }
 

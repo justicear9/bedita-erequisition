@@ -51,6 +51,10 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'vapidPublicKey' => config('services.webpush.public_key'),
+            'unreadNotifications' => $user
+                ? fn () => $user->unreadNotifications()->count()
+                : 0,
         ];
     }
 }

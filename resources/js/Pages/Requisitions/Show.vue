@@ -15,6 +15,8 @@ const props = defineProps({
 const noteForm = useForm({ note: '' });
 const reasonForm = useForm({ reason: '' });
 const modal = ref(null);
+const warehouseError = ref('');
+const releasing = ref(false);
 
 const statusLabel = (status) =>
     ({
@@ -83,6 +85,18 @@ const postAction = (routeName, form) => {
 };
 
 const release = () => {
+    warehouseError.value = '';
+
+    const missingReason = warehouseLines.some(
+        (line) => lineChanged(line) && !String(line.change_reason || '').trim(),
+    );
+
+    if (missingReason) {
+        warehouseError.value = 'Enter a change reason for every line you changed.';
+        return;
+    }
+
+    releasing.value = true;
     router.post(
         route('requisitions.warehouse.release', props.requisition.id),
         {
@@ -93,7 +107,20 @@ const release = () => {
                 change_reason: line.change_reason || null,
             })),
         },
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onFinish: () => {
+                releasing.value = false;
+            },
+            onError: (errors) => {
+                warehouseError.value =
+                    errors.lines ||
+                    errors.signature ||
+                    errors.status ||
+                    Object.values(errors)[0] ||
+                    'Could not release or submit changes.';
+            },
+        },
     );
 };
 </script>
@@ -126,6 +153,22 @@ const release = () => {
                 class="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
             >
                 {{ $page.props.flash.success }}
+            </div>
+            <div
+                v-if="$page.props.flash?.error || warehouseError"
+                class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+            >
+                {{ warehouseError || $page.props.flash.error }}
+            </div>
+            <div
+                v-if="$page.props.errors?.lines || $page.props.errors?.signature || $page.props.errors?.status"
+                class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+            >
+                {{
+                    $page.props.errors.lines ||
+                    $page.props.errors.signature ||
+                    $page.props.errors.status
+                }}
             </div>
 
             <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-3">
@@ -203,12 +246,13 @@ const release = () => {
 
                 <div v-else class="space-y-4">
                     <p class="text-sm text-gray-600">
-                        Adjust quantities if needed. Any change requires a reason and Inventory Manager approval before release.
+                        Adjust quantities or products if needed. Any change requires a reason and goes to Head of Inventory for approval before final release.
                     </p>
                     <div
                         v-for="line in warehouseLines"
                         :key="line.id"
                         class="space-y-3 rounded-md border border-gray-200 p-3"
+                        :class="{ 'border-amber-300 bg-amber-50/40': lineChanged(line) }"
                     >
                         <p class="font-medium text-gray-900">{{ line.product.description }}</p>
                         <p class="text-xs text-gray-500">
@@ -228,12 +272,22 @@ const release = () => {
                             @update:model-value="(p) => replaceProduct(line, p)"
                         />
                         <div v-if="lineChanged(line)">
-                            <label class="block text-sm font-medium text-gray-700">Change reason</label>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Change reason <span class="text-bedita-red">*</span>
+                            </label>
                             <textarea
                                 v-model="line.change_reason"
                                 rows="2"
+                                required
                                 class="mt-1 block w-full rounded-md border-gray-300 text-base shadow-sm"
+                                placeholder="Required for quantity or product changes"
                             />
+                            <p
+                                v-if="!String(line.change_reason || '').trim()"
+                                class="mt-1 text-xs text-bedita-red"
+                            >
+                                Reason required for this change.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -374,10 +428,11 @@ const release = () => {
                 <button
                     v-if="permissions.warehouseFulfill"
                     type="button"
-                    class="rounded-md bg-bedita-red px-4 py-3 text-sm font-semibold text-white"
+                    class="rounded-md bg-bedita-red px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                    :disabled="releasing"
                     @click="release"
                 >
-                    Release / submit changes
+                    {{ releasing ? 'Submitting…' : 'Release / submit changes' }}
                 </button>
             </div>
         </div>

@@ -44,6 +44,21 @@ class User extends Authenticatable
         return $this->hasMany(Requisition::class, 'requester_id');
     }
 
+    public function delegationsGiven(): HasMany
+    {
+        return $this->hasMany(ApprovalDelegation::class, 'delegator_id');
+    }
+
+    public function delegationsReceived(): HasMany
+    {
+        return $this->hasMany(ApprovalDelegation::class, 'delegate_id');
+    }
+
+    public function pushSubscriptions(): HasMany
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
     public function getSignatureUrlAttribute(): ?string
     {
         return app(SignatureService::class)->url($this->signature_path);

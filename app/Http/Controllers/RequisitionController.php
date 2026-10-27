@@ -305,12 +305,19 @@ class RequisitionController extends Controller
             'lines.*.change_reason' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        $this->workflow->warehouseRelease($requisition, $request->user(), $data['lines']);
+        try {
+            $this->workflow->warehouseRelease($requisition, $request->user(), $data['lines']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()
+                ->withErrors($e->errors())
+                ->with('error', $this->firstError($e) ?: 'Could not release or submit changes.');
+        }
+
         $requisition->refresh();
 
         $message = $requisition->status === RequisitionStatus::Released
             ? 'Released.'
-            : 'Changes submitted for inventory approval.';
+            : 'Changes sent to Head of Inventory for approval.';
 
         return back()->with('success', $message);
     }

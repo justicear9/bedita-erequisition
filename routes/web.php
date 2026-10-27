@@ -5,9 +5,12 @@ use App\Http\Controllers\Admin\DepartmentController as AdminDepartmentController
 use App\Http\Controllers\Admin\SignatureController as AdminSignatureController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DelegationController;
 use App\Http\Controllers\Inventory\ReportController as InventoryReportController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductSearchController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\RequisitionController;
 use App\Http\Controllers\RequisitionPrintController;
 use App\Http\Controllers\SignatureController;
@@ -53,6 +56,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/profile/signature', [SignatureController::class, 'update'])->name('profile.signature.update');
     Route::delete('/profile/signature', [SignatureController::class, 'destroy'])->name('profile.signature.destroy');
+
+    Route::post('/delegations', [DelegationController::class, 'store'])->name('delegations.store');
+    Route::delete('/delegations/{delegation}', [DelegationController::class, 'destroy'])->name('delegations.destroy');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+
+    Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push-subscriptions.store');
+    Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push-subscriptions.destroy');
 
     Route::middleware('inventory')->prefix('inventory')->name('inventory.')->group(function () {
         Route::get('/reports', [InventoryReportController::class, 'index'])->name('reports');
