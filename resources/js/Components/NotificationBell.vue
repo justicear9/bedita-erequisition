@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, onUnmounted, ref, watch } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import {
     isNotificationSoundUnlocked,
     playNotificationSound,
@@ -189,6 +189,14 @@ onUnmounted(() => {
 
             <div class="space-y-2 border-t border-gray-100 px-3 py-3">
                 <button
+                    v-if="vapidPublicKey"
+                    type="button"
+                    class="w-full rounded-md bg-bedita-red px-3 py-2.5 text-xs font-semibold text-white hover:bg-red-700"
+                    @click="enablePush"
+                >
+                    Enable browser notifications
+                </button>
+                <button
                     v-if="!soundReady"
                     type="button"
                     class="w-full rounded-md bg-bedita-navy px-3 py-2 text-xs font-semibold text-white hover:bg-bedita-navy-dark"
@@ -196,25 +204,18 @@ onUnmounted(() => {
                 >
                     Enable notification sounds
                 </button>
-                <button
-                    v-if="vapidPublicKey"
-                    type="button"
-                    class="w-full rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-bedita-navy hover:bg-gray-50"
-                    @click="enablePush"
-                >
-                    Enable push notifications
-                </button>
-                <p v-if="!vapidPublicKey" class="text-center text-[11px] text-amber-700">
-                    Push keys not configured on server (VAPID). In-app sound still works after enabling above.
+                <p v-if="!vapidPublicKey" class="rounded-md bg-amber-50 px-2 py-2 text-center text-[11px] text-amber-800">
+                    Browser push is off until VAPID keys are set in server .env.
+                    In-app sound still works after enabling above.
                 </p>
-                <p v-if="pushStatus" class="text-center text-xs text-gray-500">{{ pushStatus }}</p>
-                <Link
-                    :href="route('dashboard')"
-                    class="block text-center text-xs font-medium text-gray-500"
+                <p v-if="pushStatus" class="text-center text-xs text-gray-600">{{ pushStatus }}</p>
+                <button
+                    type="button"
+                    class="block w-full text-center text-xs font-medium text-gray-500"
                     @click="open = false"
                 >
                     Close
-                </Link>
+                </button>
             </div>
         </div>
     </div>

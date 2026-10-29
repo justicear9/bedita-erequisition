@@ -1,5 +1,5 @@
 /* eRequisition service worker — app shell cache + web push */
-const CACHE = 'ereq-shell-v2';
+const CACHE = 'ereq-shell-v3';
 const PRECACHE = [
     '/icons/icon-192.png',
     '/icons/icon-512.png',
