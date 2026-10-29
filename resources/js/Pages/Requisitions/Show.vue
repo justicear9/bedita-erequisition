@@ -494,7 +494,7 @@ const release = () => {
                         class="rounded-md bg-amber-500 px-4 py-3 text-sm font-semibold text-white"
                         @click="modal = 'send_changes_back'"
                     >
-                        Send to warehouse
+                        Return changes to warehouse
                     </button>
                     <button
                         type="button"
@@ -530,10 +530,16 @@ const release = () => {
                         modal === 'reject'
                             ? 'Reject requisition'
                             : modal === 'send_changes_back'
-                              ? 'Send back to warehouse'
+                              ? 'Return changes to warehouse'
                               : 'Send back with changes'
                     }}
                 </h3>
+                <p
+                    v-if="modal === 'send_changes_back'"
+                    class="mt-2 text-sm text-gray-600"
+                >
+                    Warehouse keeps the requisition and must revise the proposed qty/product changes, then submit again.
+                </p>
                 <textarea
                     v-if="modal === 'reject'"
                     v-model="reasonForm.reason"

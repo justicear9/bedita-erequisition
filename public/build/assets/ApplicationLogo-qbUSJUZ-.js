@@ -1,0 +1,1 @@
+import{O as e,x as t}from"./app-DiPnNxm3.js";import{t as n}from"./_plugin-vue_export-helper-BDNMzG2s.js";var r={},i={src:`/images/bedita-logo.png`,alt:`Bedita Pharmaceuticals`,class:`object-contain object-left`};function a(n,r){return e(),t(`img`,i)}var o=n(r,[[`render`,a]]);export{o as t};
