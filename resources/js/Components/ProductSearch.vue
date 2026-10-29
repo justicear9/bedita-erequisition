@@ -4,6 +4,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 const props = defineProps({
     modelValue: { type: Object, default: null },
     compact: { type: Boolean, default: false },
+    excludeIds: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -14,6 +15,23 @@ const open = ref(false);
 const loading = ref(false);
 const selecting = ref(false);
 let timer = null;
+
+const visibleResults = () => {
+    const excluded = new Set(
+        (props.excludeIds || [])
+            .map((id) => Number(id))
+            .filter((id) => Number.isFinite(id) && id > 0),
+    );
+    const currentId = props.modelValue?.id ? Number(props.modelValue.id) : null;
+
+    return results.value.filter((product) => {
+        const id = Number(product.id);
+        if (currentId && id === currentId) {
+            return true;
+        }
+        return !excluded.has(id);
+    });
+};
 
 const search = async () => {
     if (selecting.value) {
@@ -101,11 +119,11 @@ onUnmounted(() => {
         />
         <p v-if="loading" class="mt-1 text-xs text-gray-500">Searching…</p>
         <ul
-            v-if="open && results.length"
+            v-if="open && visibleResults().length"
             class="absolute z-30 mt-1 max-h-64 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg"
         >
             <li
-                v-for="product in results"
+                v-for="product in visibleResults()"
                 :key="product.id"
                 class="cursor-pointer border-b border-gray-50 px-3 py-3 text-sm last:border-0 hover:bg-red-50 active:bg-red-50"
                 @mousedown.prevent="select(product)"
@@ -120,7 +138,7 @@ onUnmounted(() => {
             v-else-if="open && !loading && query.trim().length > 0"
             class="mt-1 text-xs text-gray-500"
         >
-            No products found.
+            {{ results.length && !visibleResults().length ? 'Already on this requisition.' : 'No products found.' }}
         </p>
     </div>
 </template>

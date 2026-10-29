@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\Product;
 use App\Models\Requisition;
 use App\Models\User;
+use App\Notifications\RequisitionStatusNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
@@ -79,6 +80,13 @@ class WarehouseReleaseTest extends TestCase
                     'fulfilled_qty' => 2,
                     'product_id' => $item->product_id,
                     'change_reason' => '',
+                    'lots' => [
+                        [
+                            'lot_no' => 'LOT-X',
+                            'expires_on' => now()->addYear()->toDateString(),
+                            'qty' => 2,
+                        ],
+                    ],
                 ]],
             ])
             ->assertRedirect()
@@ -108,6 +116,13 @@ class WarehouseReleaseTest extends TestCase
                     'fulfilled_qty' => 2,
                     'product_id' => $item->product_id,
                     'change_reason' => 'Only 2 in stock',
+                    'lots' => [
+                        [
+                            'lot_no' => 'LOT-X',
+                            'expires_on' => now()->addYear()->toDateString(),
+                            'qty' => 2,
+                        ],
+                    ],
                 ]],
             ])
             ->assertRedirect()
@@ -118,6 +133,6 @@ class WarehouseReleaseTest extends TestCase
             $requisition->fresh()->status,
         );
 
-        Notification::assertSentTo($inventory, \App\Notifications\RequisitionStatusNotification::class);
+        Notification::assertSentTo($inventory, RequisitionStatusNotification::class);
     }
 }

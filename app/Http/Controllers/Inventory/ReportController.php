@@ -7,7 +7,7 @@ use App\Enums\RequisitionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Requisition;
-use App\Models\RequisitionItem;
+use App\Services\InventoryReportInsights;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,11 +15,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
+    public function __construct(private InventoryReportInsights $insights) {}
+
     public function index(Request $request): Response
     {
         $filters = $this->filters($request);
         $requisitions = $this->filteredRequisitions($filters)
-            ->with(['requester', 'department', 'items.product'])
+            ->with(['requester', 'department', 'items.product', 'items.lots'])
             ->latest('requested_on')
             ->paginate(25)
             ->withQueryString();
@@ -42,7 +44,7 @@ class ReportController extends Controller
             ]),
             'departments' => Department::query()->orderBy('name')->get(['id', 'name']),
             'requisitions' => $requisitions,
-            'summary' => $this->summary($filters),
+            'summary' => $this->insights->build($filters),
         ]);
     }
 
@@ -50,7 +52,7 @@ class ReportController extends Controller
     {
         $filters = $this->filters($request);
         $rows = $this->filteredRequisitions($filters)
-            ->with(['requester', 'department', 'items.product'])
+            ->with(['requester', 'department', 'items.product', 'items.lots'])
             ->latest('requested_on')
             ->get();
 
@@ -73,11 +75,16 @@ class ReportController extends Controller
                 'Fulfilled Qty',
                 'Unit Price',
                 'Line Total',
+                'Lots',
             ]);
 
             foreach ($rows as $requisition) {
                 foreach ($requisition->items as $item) {
                     $qty = $item->fulfilled_qty ?? $item->requested_qty;
+                    $lots = $item->lots
+                        ->map(fn ($lot) => $lot->lot_no.'|'.$lot->expires_on?->toDateString().'|'.$lot->qty)
+                        ->implode('; ');
+
                     fputcsv($out, [
                         $requisition->number,
                         optional($requisition->requested_on)->toDateString(),
@@ -93,6 +100,7 @@ class ReportController extends Controller
                         $item->fulfilled_qty,
                         $item->unit_price,
                         round((float) $item->unit_price * (int) $qty, 2),
+                        $lots,
                     ]);
                 }
             }
@@ -128,50 +136,5 @@ class ReportController extends Controller
             ->when($filters['status'], fn ($q) => $q->where('status', $filters['status']))
             ->when($filters['department_id'], fn ($q) => $q->where('department_id', $filters['department_id']))
             ->when($filters['request_type'], fn ($q) => $q->where('request_type', $filters['request_type']));
-    }
-
-    /**
-     * @param  array{from:string,to:string,status:?string,department_id:?int,request_type:?string}  $filters
-     * @return array<string, mixed>
-     */
-    private function summary(array $filters): array
-    {
-        $base = $this->filteredRequisitions($filters);
-
-        $byStatus = (clone $base)
-            ->selectRaw('status, count(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
-
-        $byDepartment = (clone $base)
-            ->join('departments', 'departments.id', '=', 'requisitions.department_id')
-            ->selectRaw('departments.name as department, count(*) as total')
-            ->groupBy('departments.name')
-            ->orderByDesc('total')
-            ->limit(8)
-            ->get();
-
-        $topProducts = RequisitionItem::query()
-            ->whereIn('requisition_id', (clone $base)->select('requisitions.id'))
-            ->join('products', 'products.id', '=', 'requisition_items.product_id')
-            ->selectRaw('products.sku, products.description, sum(requisition_items.requested_qty) as qty')
-            ->groupBy('products.id', 'products.sku', 'products.description')
-            ->orderByDesc('qty')
-            ->limit(8)
-            ->get();
-
-        return [
-            'total' => (clone $base)->count(),
-            'released' => (int) ($byStatus[RequisitionStatus::Released->value] ?? 0),
-            'pending_inventory' => (int) ($byStatus[RequisitionStatus::PendingInventory->value] ?? 0),
-            'rejected' => (int) ($byStatus[RequisitionStatus::Rejected->value] ?? 0),
-            'by_status' => collect(RequisitionStatus::cases())->map(fn ($s) => [
-                'status' => $s->value,
-                'label' => $s->label(),
-                'total' => (int) ($byStatus[$s->value] ?? 0),
-            ])->values(),
-            'by_department' => $byDepartment,
-            'top_products' => $topProducts,
-        ];
     }
 }

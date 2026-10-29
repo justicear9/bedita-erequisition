@@ -64,6 +64,11 @@ class InventoryReportsTest extends TestCase
                 ->component('Inventory/Reports')
                 ->has('summary')
                 ->where('summary.total', 1)
+                ->has('summary.kpis')
+                ->has('summary.kpis.requested_value')
+                ->has('summary.series')
+                ->has('summary.forecast')
+                ->has('summary.insights')
             );
 
         $this->actingAs($inventory)

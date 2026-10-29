@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -83,7 +84,7 @@ class RequisitionController extends Controller
                 return redirect()
                     ->route('requisitions.show', $requisition)
                     ->with('success', 'Requisition submitted.');
-            } catch (\Illuminate\Validation\ValidationException $e) {
+            } catch (ValidationException $e) {
                 return redirect()
                     ->route('requisitions.show', $requisition)
                     ->withErrors($e->errors())
@@ -104,6 +105,7 @@ class RequisitionController extends Controller
             'requester',
             'department.manager',
             'items.product',
+            'items.lots',
             'events.user',
         ]);
 
@@ -192,7 +194,7 @@ class RequisitionController extends Controller
                 return redirect()
                     ->route('requisitions.show', $requisition)
                     ->with('success', 'Requisition submitted.');
-            } catch (\Illuminate\Validation\ValidationException $e) {
+            } catch (ValidationException $e) {
                 return redirect()
                     ->route('requisitions.show', $requisition)
                     ->withErrors($e->errors())
@@ -205,7 +207,7 @@ class RequisitionController extends Controller
             ->with('success', 'Draft saved.');
     }
 
-    private function firstError(\Illuminate\Validation\ValidationException $e): string
+    private function firstError(ValidationException $e): string
     {
         $messages = $e->errors();
         $first = reset($messages);
@@ -303,11 +305,15 @@ class RequisitionController extends Controller
             'lines.*.fulfilled_qty' => ['required', 'integer', 'min:0'],
             'lines.*.product_id' => ['nullable', 'integer', 'exists:products,id'],
             'lines.*.change_reason' => ['nullable', 'string', 'max:2000'],
+            'lines.*.lots' => ['nullable', 'array'],
+            'lines.*.lots.*.lot_no' => ['required_with:lines.*.lots', 'string', 'max:100'],
+            'lines.*.lots.*.expires_on' => ['required_with:lines.*.lots', 'date'],
+            'lines.*.lots.*.qty' => ['required_with:lines.*.lots', 'integer', 'min:1'],
         ]);
 
         try {
             $this->workflow->warehouseRelease($requisition, $request->user(), $data['lines']);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return back()
                 ->withErrors($e->errors())
                 ->with('error', $this->firstError($e) ?: 'Could not release or submit changes.');
@@ -334,7 +340,7 @@ class RequisitionController extends Controller
             'declaration' => [$submitting ? 'accepted' : 'nullable', 'boolean'],
             'should_submit' => ['nullable', 'boolean'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
+            'items.*.product_id' => ['required', 'integer', 'exists:products,id', 'distinct'],
             'items.*.qty' => ['required', 'integer', 'min:1'],
         ]);
     }
@@ -344,11 +350,17 @@ class RequisitionController extends Controller
      */
     private function syncItems(Requisition $requisition, array $items): void
     {
+        $merged = [];
         foreach ($items as $item) {
-            $product = Product::query()->findOrFail($item['product_id']);
+            $productId = (int) $item['product_id'];
+            $merged[$productId] = ($merged[$productId] ?? 0) + (int) $item['qty'];
+        }
+
+        foreach ($merged as $productId => $qty) {
+            $product = Product::query()->findOrFail($productId);
             $requisition->items()->create([
                 'product_id' => $product->id,
-                'requested_qty' => $item['qty'],
+                'requested_qty' => $qty,
                 'uom' => $product->uom,
                 'unit_price' => $product->price,
             ]);

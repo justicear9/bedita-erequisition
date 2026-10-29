@@ -87,6 +87,11 @@ const qty = (item) =>
                         <p v-if="item.change_reason" class="text-xs text-gray-500">
                             Note: {{ item.change_reason }}
                         </p>
+                        <ul v-if="item.lots?.length" class="mt-1 space-y-0.5 text-xs text-gray-600">
+                            <li v-for="lot in item.lots" :key="`${lot.id || lot.lot_no}-${lot.expires_on}`">
+                                Lot {{ lot.lot_no }} · Exp {{ (lot.expires_on || '').toString().slice(0, 10) }} · Qty {{ lot.qty }}
+                            </li>
+                        </ul>
                     </td>
                     <td class="py-2 pr-2 align-top">{{ item.uom }}</td>
                     <td class="py-2 text-right align-top font-semibold">{{ qty(item) }}</td>

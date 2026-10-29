@@ -12,7 +12,7 @@ class RequisitionPrintController extends Controller
     {
         $this->authorize('printPickList', $requisition);
 
-        $requisition->load(['requester', 'department.manager', 'items.product']);
+        $requisition->load(['requester', 'department.manager', 'items.product', 'items.lots']);
 
         return Inertia::render('Requisitions/Print', [
             'mode' => 'pick_list',
@@ -25,7 +25,7 @@ class RequisitionPrintController extends Controller
     {
         $this->authorize('printFinal', $requisition);
 
-        $requisition->load(['requester', 'department.manager', 'items.product']);
+        $requisition->load(['requester', 'department.manager', 'items.product', 'items.lots']);
 
         return Inertia::render('Requisitions/Print', [
             'mode' => 'final',

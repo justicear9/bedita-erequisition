@@ -90,6 +90,13 @@ class RequisitionWorkflowTest extends TestCase
                         'id' => $item->id,
                         'fulfilled_qty' => 2,
                         'product_id' => $product->id,
+                        'lots' => [
+                            [
+                                'lot_no' => 'LOT-1',
+                                'expires_on' => now()->addYear()->toDateString(),
+                                'qty' => 2,
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -98,6 +105,7 @@ class RequisitionWorkflowTest extends TestCase
         $released = $requisition->fresh();
         $this->assertSame(RequisitionStatus::Released, $released->status);
         $this->assertNotNull($released->warehouse_signature_path);
+        $this->assertDatabaseCount('requisition_item_lots', 1);
     }
 
     public function test_warehouse_changes_require_inventory_reapproval(): void
@@ -145,6 +153,13 @@ class RequisitionWorkflowTest extends TestCase
                 'fulfilled_qty' => 3,
                 'product_id' => $product->id,
                 'change_reason' => 'Only 3 in stock',
+                'lots' => [
+                    [
+                        'lot_no' => 'LOT-PARTIAL',
+                        'expires_on' => now()->addYear()->toDateString(),
+                        'qty' => 3,
+                    ],
+                ],
             ]],
         ]);
 
@@ -165,6 +180,13 @@ class RequisitionWorkflowTest extends TestCase
                 'id' => $item->id,
                 'fulfilled_qty' => 3,
                 'product_id' => $product->id,
+                'lots' => [
+                    [
+                        'lot_no' => 'LOT-FINAL',
+                        'expires_on' => now()->addYear()->toDateString(),
+                        'qty' => 3,
+                    ],
+                ],
             ]],
         ]);
 

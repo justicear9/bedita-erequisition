@@ -69,6 +69,24 @@ const requestTypeLabel = computed(() => {
     return map[props.requisition.request_type] || props.requisition.request_type;
 });
 
+const emptyLot = (qty = 1) => ({
+    lot_no: '',
+    expires_on: '',
+    qty,
+});
+
+const lotsFromItem = (item) => {
+    if (item.lots?.length) {
+        return item.lots.map((lot) => ({
+            lot_no: lot.lot_no || '',
+            expires_on: (lot.expires_on || '').toString().slice(0, 10),
+            qty: Number(lot.qty) || 1,
+        }));
+    }
+
+    return [emptyLot(item.fulfilled_qty ?? item.requested_qty ?? 1)];
+};
+
 const warehouseLines = reactive(
     props.requisition.items.map((item) => ({
         id: item.id,
@@ -79,8 +97,24 @@ const warehouseLines = reactive(
         fulfilled_qty: item.fulfilled_qty ?? item.requested_qty,
         change_reason: item.change_reason || '',
         uom: item.uom,
+        lots: lotsFromItem(item),
     })),
 );
+
+const warehouseProductIds = (exceptLineId = null) =>
+    warehouseLines
+        .filter((line) => line.id !== exceptLineId && line.product_id)
+        .map((line) => line.product_id);
+
+const lotSum = (line) =>
+    (line.lots || []).reduce((sum, lot) => sum + (Number(lot.qty) || 0), 0);
+
+const lotsMatchFulfilled = (line) => {
+    if (Number(line.fulfilled_qty) === 0) {
+        return true;
+    }
+    return lotSum(line) === Number(line.fulfilled_qty);
+};
 
 const lineChanged = (line) =>
     Number(line.fulfilled_qty) !== Number(line.requested_qty) ||
@@ -88,9 +122,29 @@ const lineChanged = (line) =>
 
 const replaceProduct = (line, product) => {
     if (!product) return;
+    if (
+        warehouseLines.some(
+            (other) => other.id !== line.id && Number(other.product_id) === Number(product.id),
+        )
+    ) {
+        warehouseError.value = 'That product is already on this requisition. Increase quantity instead.';
+        return;
+    }
     line.product_id = product.id;
     line.product = product;
     line.uom = product.uom;
+};
+
+const addLot = (line) => {
+    line.lots.push(emptyLot(1));
+};
+
+const removeLot = (line, index) => {
+    if (line.lots.length === 1) {
+        line.lots.splice(0, 1, emptyLot(Number(line.fulfilled_qty) || 1));
+        return;
+    }
+    line.lots.splice(index, 1);
 };
 
 const hasStickyActions = computed(
@@ -135,6 +189,24 @@ const release = () => {
         return;
     }
 
+    const incompleteLots = warehouseLines.some((line) => {
+        if (Number(line.fulfilled_qty) === 0) {
+            return false;
+        }
+        if (!lotsMatchFulfilled(line)) {
+            return true;
+        }
+        return line.lots.some(
+            (lot) => !String(lot.lot_no || '').trim() || !String(lot.expires_on || '').trim() || Number(lot.qty) < 1,
+        );
+    });
+
+    if (incompleteLots) {
+        warehouseError.value =
+            'Enter lot number, expiry, and qty for each lot. Lot quantities must equal the fulfill qty.';
+        return;
+    }
+
     releasing.value = true;
     router.post(
         route('requisitions.warehouse.release', props.requisition.id),
@@ -144,6 +216,14 @@ const release = () => {
                 fulfilled_qty: Number(line.fulfilled_qty),
                 product_id: line.product_id,
                 change_reason: line.change_reason || null,
+                lots:
+                    Number(line.fulfilled_qty) === 0
+                        ? []
+                        : line.lots.map((lot) => ({
+                              lot_no: String(lot.lot_no).trim(),
+                              expires_on: lot.expires_on,
+                              qty: Number(lot.qty),
+                          })),
             })),
         },
         {
@@ -278,12 +358,17 @@ const release = () => {
                                 <p v-if="item.change_reason" class="mt-1 text-sm text-orange-700">
                                     Reason: {{ item.change_reason }}
                                 </p>
+                                <ul v-if="item.lots?.length" class="mt-2 space-y-1 text-xs text-gray-600">
+                                    <li v-for="lot in item.lots" :key="`${lot.id || lot.lot_no}-${lot.expires_on}`">
+                                        Lot {{ lot.lot_no }} · Exp {{ (lot.expires_on || '').toString().slice(0, 10) }} · Qty {{ lot.qty }}
+                                    </li>
+                                </ul>
                             </div>
                         </div>
 
                         <div v-else class="space-y-4">
                             <p class="text-sm text-gray-600">
-                                Adjust quantities or products if needed. Any change requires a reason and goes to Head of Inventory for approval before final release.
+                                Adjust quantities or products if needed. Record lot number and expiry for what you issue. Any change requires a reason and goes to Head of Inventory for approval before final release.
                             </p>
                             <div
                                 v-for="line in warehouseLines"
@@ -306,8 +391,71 @@ const release = () => {
                                 </div>
                                 <ProductSearch
                                     :model-value="line.product"
+                                    :exclude-ids="warehouseProductIds(line.id)"
                                     @update:model-value="(p) => replaceProduct(line, p)"
                                 />
+
+                                <div v-if="Number(line.fulfilled_qty) > 0" class="space-y-2 rounded-lg border border-gray-100 bg-white p-3">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <p class="text-sm font-medium text-gray-800">Lots issued</p>
+                                        <button
+                                            type="button"
+                                            class="text-xs font-semibold text-bedita-navy hover:underline"
+                                            @click="addLot(line)"
+                                        >
+                                            + Add lot
+                                        </button>
+                                    </div>
+                                    <div
+                                        v-for="(lot, lotIndex) in line.lots"
+                                        :key="lotIndex"
+                                        class="grid gap-2 sm:grid-cols-12 sm:items-end"
+                                    >
+                                        <div class="sm:col-span-4">
+                                            <label class="block text-xs font-medium text-gray-500">Lot No.</label>
+                                            <input
+                                                v-model="lot.lot_no"
+                                                type="text"
+                                                class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm"
+                                                placeholder="Lot number"
+                                            />
+                                        </div>
+                                        <div class="sm:col-span-4">
+                                            <label class="block text-xs font-medium text-gray-500">Expiry</label>
+                                            <input
+                                                v-model="lot.expires_on"
+                                                type="date"
+                                                class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm"
+                                            />
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <label class="block text-xs font-medium text-gray-500">Qty</label>
+                                            <input
+                                                v-model.number="lot.qty"
+                                                type="number"
+                                                min="1"
+                                                class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm"
+                                            />
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <button
+                                                type="button"
+                                                class="text-xs font-medium text-bedita-red hover:underline"
+                                                @click="removeLot(line, lotIndex)"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p
+                                        class="text-xs"
+                                        :class="lotsMatchFulfilled(line) ? 'text-gray-500' : 'text-bedita-red'"
+                                    >
+                                        Lot total {{ lotSum(line) }} / fulfill {{ line.fulfilled_qty }}
+                                        <span v-if="!lotsMatchFulfilled(line)"> — must match</span>
+                                    </p>
+                                </div>
+
                                 <div v-if="lineChanged(line)">
                                     <label class="block text-sm font-medium text-gray-700">
                                         Change reason <span class="text-bedita-red">*</span>

@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { formatDate } from '@/formatDate';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 
 const props = defineProps({
     filters: { type: Object, required: true },
@@ -21,6 +21,9 @@ const form = reactive({
     department_id: props.filters.department_id || '',
     request_type: props.filters.request_type || '',
 });
+
+const money = (value) =>
+    `GHS ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const statusLabel = (status) =>
     props.statuses.find((s) => s.value === status)?.label || status;
@@ -42,6 +45,15 @@ const apply = () => {
     });
 };
 
+const setPreset = (days) => {
+    const to = new Date();
+    const from = new Date();
+    from.setDate(to.getDate() - (days - 1));
+    form.to = to.toISOString().slice(0, 10);
+    form.from = from.toISOString().slice(0, 10);
+    apply();
+};
+
 const exportUrl = () => {
     const params = new URLSearchParams();
     Object.entries({
@@ -55,6 +67,25 @@ const exportUrl = () => {
     });
     return `${route('inventory.reports.export')}?${params.toString()}`;
 };
+
+const maxSeriesValue = computed(() =>
+    Math.max(1, ...(props.summary.series || []).map((row) => Number(row.value) || 0)),
+);
+
+const insightTone = (tone) =>
+    ({
+        amber: 'border-amber-200 bg-amber-50 text-amber-950',
+        red: 'border-red-200 bg-red-50 text-red-950',
+        blue: 'border-sky-200 bg-sky-50 text-sky-950',
+        green: 'border-emerald-200 bg-emerald-50 text-emerald-950',
+        slate: 'border-slate-200 bg-slate-50 text-slate-900',
+    })[tone] || 'border-gray-200 bg-white text-gray-900';
+
+const lineValue = (req) =>
+    (req.items || []).reduce((sum, item) => {
+        const qty = item.fulfilled_qty ?? item.requested_qty ?? 0;
+        return sum + Number(item.unit_price || 0) * Number(qty);
+    }, 0);
 </script>
 
 <template>
@@ -67,9 +98,9 @@ const exportUrl = () => {
                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-bedita-red">
                         Head of Inventory
                     </p>
-                    <h2 class="mt-1 text-2xl font-semibold text-bedita-navy">Reports</h2>
+                    <h2 class="mt-1 text-2xl font-semibold text-bedita-navy">Intelligence reports</h2>
                     <p class="mt-1 text-sm text-gray-500">
-                        Filter requisitions and export line-level CSV for analysis.
+                        Value, fill rate, shortfalls, and 30-day demand projection.
                     </p>
                 </div>
                 <a
@@ -81,7 +112,7 @@ const exportUrl = () => {
             </div>
         </template>
 
-        <div class="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
             <section class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                 <form class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" @submit.prevent="apply">
                     <div>
@@ -119,33 +150,132 @@ const exportUrl = () => {
                             </option>
                         </select>
                     </div>
-                    <div class="sm:col-span-2 lg:col-span-5">
+                    <div class="flex flex-wrap items-end gap-2 sm:col-span-2 lg:col-span-5">
                         <button
                             type="submit"
                             class="rounded-xl bg-bedita-red px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
                         >
                             Apply filters
                         </button>
+                        <button type="button" class="rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-bedita-navy" @click="setPreset(7)">
+                            Last 7 days
+                        </button>
+                        <button type="button" class="rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-bedita-navy" @click="setPreset(30)">
+                            Last 30 days
+                        </button>
                     </div>
                 </form>
             </section>
 
-            <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Total in range</p>
-                    <p class="mt-2 text-3xl font-semibold text-bedita-navy">{{ summary.total }}</p>
+            <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div class="rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Requested value</p>
+                    <p class="mt-2 text-2xl font-semibold text-bedita-navy">{{ money(summary.kpis?.requested_value) }}</p>
+                    <p class="mt-1 text-xs text-gray-500">{{ summary.total }} requisitions</p>
                 </div>
-                <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Released</p>
-                    <p class="mt-2 text-3xl font-semibold text-green-700">{{ summary.released }}</p>
+                <div class="rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-emerald-50/60 p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Released value</p>
+                    <p class="mt-2 text-2xl font-semibold text-emerald-800">{{ money(summary.kpis?.released_value) }}</p>
+                    <p class="mt-1 text-xs text-gray-500">Fill rate {{ summary.kpis?.fill_rate ?? 0 }}%</p>
                 </div>
-                <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Pending inventory</p>
-                    <p class="mt-2 text-3xl font-semibold text-amber-700">{{ summary.pending_inventory }}</p>
+                <div class="rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-amber-50/70 p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Pipeline value</p>
+                    <p class="mt-2 text-2xl font-semibold text-amber-800">{{ money(summary.kpis?.pipeline_value) }}</p>
+                    <p class="mt-1 text-xs text-gray-500">Still in approval / warehouse</p>
+                </div>
+                <div class="rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-red-50/50 p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Shortfall value</p>
+                    <p class="mt-2 text-2xl font-semibold text-red-800">{{ money(summary.kpis?.shortfall_value) }}</p>
+                    <p class="mt-1 text-xs text-gray-500">Released under-fulfilled lines</p>
                 </div>
                 <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Rejected</p>
-                    <p class="mt-2 text-3xl font-semibold text-red-700">{{ summary.rejected }}</p>
+                    <p class="mt-2 text-2xl font-semibold text-bedita-navy">{{ summary.rejected }}</p>
+                    <p class="mt-1 text-xs text-gray-500">Rejection rate {{ summary.kpis?.rejection_rate ?? 0 }}%</p>
+                </div>
+                <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Pending inventory</p>
+                    <p class="mt-2 text-2xl font-semibold text-bedita-navy">{{ summary.pending_inventory }}</p>
+                    <p class="mt-1 text-xs text-gray-500">Awaiting inventory decision</p>
+                </div>
+            </section>
+
+            <section class="grid gap-4 lg:grid-cols-2">
+                <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                    <h3 class="font-semibold text-bedita-navy">Daily request value</h3>
+                    <div class="mt-4 flex h-40 items-end gap-1">
+                        <div
+                            v-for="row in summary.series || []"
+                            :key="row.date"
+                            class="group relative flex-1 rounded-t bg-bedita-navy/80 transition hover:bg-bedita-red"
+                            :style="{ height: `${Math.max(4, (Number(row.value) / maxSeriesValue) * 100)}%` }"
+                            :title="`${row.date}: ${money(row.value)} (${row.count})`"
+                        />
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">Hover bars for date and value.</p>
+                </div>
+
+                <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                    <h3 class="font-semibold text-bedita-navy">Insights</h3>
+                    <ul class="mt-4 space-y-3">
+                        <li
+                            v-for="(card, index) in summary.insights || []"
+                            :key="index"
+                            class="rounded-xl border px-4 py-3 text-sm"
+                            :class="insightTone(card.tone)"
+                        >
+                            <p class="font-semibold">{{ card.title }}</p>
+                            <p class="mt-1 opacity-90">{{ card.detail }}</p>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="grid gap-4 lg:grid-cols-2">
+                <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                    <h3 class="font-semibold text-bedita-navy">30-day projection (top SKUs)</h3>
+                    <ul class="mt-4 space-y-3">
+                        <li
+                            v-for="row in summary.forecast || []"
+                            :key="row.sku"
+                            class="flex items-start justify-between gap-3 text-sm"
+                        >
+                            <div>
+                                <p class="font-medium text-bedita-navy">{{ row.description }}</p>
+                                <p class="text-xs text-gray-500">
+                                    {{ row.sku }} · {{ row.avg_daily }}/day
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-bedita-navy">{{ row.projected_30 }}</p>
+                                <p class="text-xs text-gray-500">{{ money(row.value_30) }}</p>
+                            </div>
+                        </li>
+                        <li v-if="!(summary.forecast || []).length" class="text-sm text-gray-400">No data</li>
+                    </ul>
+                </div>
+
+                <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                    <h3 class="font-semibold text-bedita-navy">Shortfalls (released)</h3>
+                    <ul class="mt-4 space-y-3">
+                        <li
+                            v-for="row in summary.shortfalls || []"
+                            :key="row.sku"
+                            class="flex items-start justify-between gap-3 text-sm"
+                        >
+                            <div>
+                                <p class="font-medium text-bedita-navy">{{ row.description }}</p>
+                                <p class="text-xs text-gray-500">
+                                    {{ row.sku }} · {{ row.fulfilled }}/{{ row.requested }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-red-700">-{{ row.shortfall }}</p>
+                                <p class="text-xs text-gray-500">{{ money(row.value) }}</p>
+                            </div>
+                        </li>
+                        <li v-if="!(summary.shortfalls || []).length" class="text-sm text-gray-400">No shortfalls</li>
+                    </ul>
                 </div>
             </section>
 
@@ -165,7 +295,7 @@ const exportUrl = () => {
                     </ul>
                 </div>
                 <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                    <h3 class="font-semibold text-bedita-navy">Top products (requested qty)</h3>
+                    <h3 class="font-semibold text-bedita-navy">Top products by value</h3>
                     <ul class="mt-4 space-y-3">
                         <li
                             v-for="row in summary.top_products"
@@ -175,9 +305,9 @@ const exportUrl = () => {
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="font-medium text-bedita-navy">{{ row.description }}</p>
-                                    <p class="text-xs text-gray-500">{{ row.sku }}</p>
+                                    <p class="text-xs text-gray-500">{{ row.sku }} · qty {{ row.qty }}</p>
                                 </div>
-                                <span class="font-semibold text-bedita-navy">{{ row.qty }}</span>
+                                <span class="font-semibold text-bedita-navy">{{ money(row.value) }}</span>
                             </div>
                         </li>
                         <li v-if="!summary.top_products.length" class="text-sm text-gray-400">No data</li>
@@ -195,6 +325,8 @@ const exportUrl = () => {
                                 <th class="px-4 py-3 text-left font-semibold text-gray-500">Date</th>
                                 <th class="px-4 py-3 text-left font-semibold text-gray-500">Requester</th>
                                 <th class="px-4 py-3 text-left font-semibold text-gray-500">Department</th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-500">Lines</th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-500">Value</th>
                                 <th class="px-4 py-3 text-left font-semibold text-gray-500">Status</th>
                             </tr>
                         </thead>
@@ -214,12 +346,14 @@ const exportUrl = () => {
                                 <td class="px-4 py-3 text-gray-700">{{ formatDate(req.requested_on) }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ req.requester?.name }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ req.department?.name }}</td>
+                                <td class="px-4 py-3 text-gray-700">{{ req.items?.length || 0 }}</td>
+                                <td class="px-4 py-3 text-gray-700">{{ money(lineValue(req)) }}</td>
                                 <td class="px-4 py-3">
                                     <StatusBadge :status="req.status" :label="statusLabel(req.status)" />
                                 </td>
                             </tr>
                             <tr v-if="!requisitions.data.length">
-                                <td colspan="5" class="px-4 py-8 text-center text-gray-400">
+                                <td colspan="7" class="px-4 py-8 text-center text-gray-400">
                                     No requisitions match these filters.
                                 </td>
                             </tr>

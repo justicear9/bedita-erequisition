@@ -4,9 +4,12 @@ namespace App\Services;
 
 use App\Enums\RequisitionStatus;
 use App\Enums\UserRole;
+use App\Models\Product;
 use App\Models\Requisition;
+use App\Models\RequisitionItem;
 use App\Models\User;
 use App\Notifications\RequisitionStatusNotification;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -221,7 +224,7 @@ class RequisitionWorkflow
     }
 
     /**
-     * @param  array<int, array{id:int, fulfilled_qty:int, product_id?:int, change_reason?:string|null}>  $lines
+     * @param  array<int, array{id:int, fulfilled_qty:int, product_id?:int, change_reason?:string|null, lots?:array<int, array{lot_no:string, expires_on:string, qty:int}>}>  $lines
      */
     public function warehouseRelease(Requisition $requisition, User $actor, array $lines): void
     {
@@ -337,13 +340,14 @@ class RequisitionWorkflow
     }
 
     /**
-     * @param  array<int, array{id:int, fulfilled_qty:int, product_id?:int, change_reason?:string|null}>  $lines
+     * @param  array<int, array{id:int, fulfilled_qty:int, product_id?:int, change_reason?:string|null, lots?:array<int, array{lot_no:string, expires_on:string, qty:int}>}>  $lines
      * @return array{has_changes: bool, summary: string}
      */
     private function applyWarehouseLines(Requisition $requisition, array $lines): array
     {
         $changeNotes = [];
         $items = $requisition->items()->with('product')->get()->keyBy('id');
+        $resolvedProductIds = [];
 
         foreach ($lines as $line) {
             $item = $items->get($line['id'] ?? null);
@@ -355,6 +359,9 @@ class RequisitionWorkflow
 
             $fulfilledQty = (int) $line['fulfilled_qty'];
             $productId = isset($line['product_id']) ? (int) $line['product_id'] : $item->product_id;
+            $this->assertUniqueProductOnRelease($resolvedProductIds, $productId, $item->id);
+            $this->syncItemLots($item, $line['lots'] ?? [], $fulfilledQty);
+
             $qtyChanged = $fulfilledQty !== (int) $item->requested_qty;
             $productChanged = $productId !== (int) $item->product_id;
             $changed = $qtyChanged || $productChanged;
@@ -379,7 +386,7 @@ class RequisitionWorkflow
             $newProduct = $originalProduct;
 
             if ($productChanged) {
-                $newProduct = \App\Models\Product::query()->findOrFail($productId);
+                $newProduct = Product::query()->findOrFail($productId);
                 $updates['product_id'] = $newProduct->id;
                 $updates['uom'] = $newProduct->uom;
                 $updates['unit_price'] = $newProduct->price;
@@ -410,6 +417,73 @@ class RequisitionWorkflow
                 ? ''
                 : "Changes submitted for inventory approval:\n".implode("\n", $changeNotes),
         ];
+    }
+
+    /**
+     * @param  array<int, int>  $resolvedProductIds
+     */
+    private function assertUniqueProductOnRelease(array &$resolvedProductIds, int $productId, int $itemId): void
+    {
+        if (isset($resolvedProductIds[$productId]) && $resolvedProductIds[$productId] !== $itemId) {
+            throw ValidationException::withMessages([
+                'lines' => 'Each product can only appear once on a requisition. Increase quantity instead.',
+            ]);
+        }
+
+        $resolvedProductIds[$productId] = $itemId;
+    }
+
+    /**
+     * @param  array<int, array{lot_no?:string, expires_on?:string, qty?:int}>  $lots
+     */
+    private function syncItemLots(RequisitionItem $item, array $lots, int $fulfilledQty): void
+    {
+        if ($fulfilledQty === 0) {
+            $item->lots()->delete();
+
+            return;
+        }
+
+        $normalized = [];
+        foreach ($lots as $lot) {
+            $lotNo = trim((string) ($lot['lot_no'] ?? ''));
+            $expiresOn = (string) ($lot['expires_on'] ?? '');
+            $qty = (int) ($lot['qty'] ?? 0);
+
+            if ($lotNo === '' && $expiresOn === '' && $qty === 0) {
+                continue;
+            }
+
+            if ($lotNo === '' || $expiresOn === '' || $qty < 1) {
+                throw ValidationException::withMessages([
+                    'lines' => 'Each lot needs a lot number, expiry date, and quantity of at least 1.',
+                ]);
+            }
+
+            $normalized[] = [
+                'lot_no' => $lotNo,
+                'expires_on' => $expiresOn,
+                'qty' => $qty,
+            ];
+        }
+
+        if ($normalized === []) {
+            throw ValidationException::withMessages([
+                'lines' => 'Enter at least one lot for each product being released.',
+            ]);
+        }
+
+        $lotSum = array_sum(array_column($normalized, 'qty'));
+        if ($lotSum !== $fulfilledQty) {
+            throw ValidationException::withMessages([
+                'lines' => "Lot quantities must total the fulfilled quantity ({$fulfilledQty}). Currently {$lotSum}.",
+            ]);
+        }
+
+        $item->lots()->delete();
+        foreach ($normalized as $lot) {
+            $item->lots()->create($lot);
+        }
     }
 
     private function summarizePendingItemChanges(Requisition $requisition): string
@@ -457,7 +531,7 @@ class RequisitionWorkflow
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int, User>  $users
+     * @param  Collection<int, User>  $users
      */
     private function notifyMany($users, Requisition $requisition, string $kind, string $message): void
     {

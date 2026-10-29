@@ -43,9 +43,35 @@ const form = useForm({
     should_submit: false,
 });
 
+const selectedProductIds = (exceptIndex = null) =>
+    form.items
+        .map((item, i) => (i === exceptIndex ? null : item.product_id))
+        .filter((id) => id != null);
+
 const setProduct = (index, product) => {
+    if (!product) {
+        form.items[index].product = null;
+        form.items[index].product_id = null;
+        return;
+    }
+
+    const existingIndex = form.items.findIndex(
+        (item, i) => i !== index && Number(item.product_id) === Number(product.id),
+    );
+
+    if (existingIndex !== -1) {
+        const addQty = Math.max(1, Number(form.items[index].qty) || 1);
+        form.items[existingIndex].qty = Math.max(1, Number(form.items[existingIndex].qty) || 0) + addQty;
+        if (form.items.length === 1) {
+            form.items.splice(0, 1, emptyRow());
+        } else {
+            form.items.splice(index, 1);
+        }
+        return;
+    }
+
     form.items[index].product = product;
-    form.items[index].product_id = product?.id ?? null;
+    form.items[index].product_id = product.id;
 };
 
 const addRow = () => {
@@ -60,13 +86,17 @@ const removeRow = (index) => {
     form.items.splice(index, 1);
 };
 
-const payloadItems = () =>
+const payloadItems = () => {
+    const merged = new Map();
     form.items
         .filter((item) => item.product_id && item.qty >= 1)
-        .map((item) => ({
-            product_id: item.product_id,
-            qty: Number(item.qty),
-        }));
+        .forEach((item) => {
+            const id = Number(item.product_id);
+            merged.set(id, (merged.get(id) || 0) + Number(item.qty));
+        });
+
+    return [...merged.entries()].map(([product_id, qty]) => ({ product_id, qty }));
+};
 
 const save = (shouldSubmit) => {
     const options = {
@@ -207,6 +237,7 @@ const save = (shouldSubmit) => {
                             <ProductSearch
                                 compact
                                 :model-value="item.product"
+                                :exclude-ids="selectedProductIds(index)"
                                 @update:model-value="(p) => setProduct(index, p)"
                             />
                             <p v-if="item.product" class="mt-1 text-xs text-gray-500">
