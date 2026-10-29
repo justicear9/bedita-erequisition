@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\Requisition;
 use App\Services\InventoryReportInsights;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -20,8 +21,13 @@ class ReportController extends Controller
     public function index(Request $request): Response
     {
         $filters = $this->filters($request);
+        $with = ['requester', 'department', 'items.product'];
+        if (Schema::hasTable('requisition_item_lots')) {
+            $with[] = 'items.lots';
+        }
+
         $requisitions = $this->filteredRequisitions($filters)
-            ->with(['requester', 'department', 'items.product', 'items.lots'])
+            ->with($with)
             ->latest('requested_on')
             ->paginate(25)
             ->withQueryString();
@@ -51,16 +57,22 @@ class ReportController extends Controller
     public function export(Request $request): StreamedResponse
     {
         $filters = $this->filters($request);
+        $with = ['requester', 'department', 'items.product'];
+        $hasLots = Schema::hasTable('requisition_item_lots');
+        if ($hasLots) {
+            $with[] = 'items.lots';
+        }
+
         $rows = $this->filteredRequisitions($filters)
-            ->with(['requester', 'department', 'items.product', 'items.lots'])
+            ->with($with)
             ->latest('requested_on')
             ->get();
 
         $filename = 'erequisition-report-'.now()->format('Ymd-His').'.csv';
 
-        return response()->streamDownload(function () use ($rows) {
+        return response()->streamDownload(function () use ($rows, $hasLots) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, [
+            $headers = [
                 'Number',
                 'Date',
                 'Status',
@@ -75,17 +87,16 @@ class ReportController extends Controller
                 'Fulfilled Qty',
                 'Unit Price',
                 'Line Total',
-                'Lots',
-            ]);
+            ];
+            if ($hasLots) {
+                $headers[] = 'Lots';
+            }
+            fputcsv($out, $headers);
 
             foreach ($rows as $requisition) {
                 foreach ($requisition->items as $item) {
                     $qty = $item->fulfilled_qty ?? $item->requested_qty;
-                    $lots = $item->lots
-                        ->map(fn ($lot) => $lot->lot_no.'|'.$lot->expires_on?->toDateString().'|'.$lot->qty)
-                        ->implode('; ');
-
-                    fputcsv($out, [
+                    $row = [
                         $requisition->number,
                         optional($requisition->requested_on)->toDateString(),
                         $requisition->status->value,
@@ -100,8 +111,13 @@ class ReportController extends Controller
                         $item->fulfilled_qty,
                         $item->unit_price,
                         round((float) $item->unit_price * (int) $qty, 2),
-                        $lots,
-                    ]);
+                    ];
+                    if ($hasLots) {
+                        $row[] = $item->lots
+                            ->map(fn ($lot) => $lot->lot_no.'|'.$lot->expires_on?->toDateString().'|'.$lot->qty)
+                            ->implode('; ');
+                    }
+                    fputcsv($out, $row);
                 }
             }
 

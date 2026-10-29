@@ -7,6 +7,7 @@ use App\Models\Requisition;
 use App\Models\RequisitionItem;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class InventoryReportInsights
 {
@@ -17,45 +18,46 @@ class InventoryReportInsights
     public function build(array $filters): array
     {
         $base = $this->filteredRequisitions($filters);
-        $itemBase = RequisitionItem::query()
-            ->whereIn('requisition_id', (clone $base)->select('requisitions.id'));
+        $requisitionIds = (clone $base)->select('requisitions.id');
 
         $byStatus = (clone $base)
-            ->selectRaw('status, count(*) as total')
+            ->toBase()
+            ->select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->pluck('total', 'status');
 
         $byDepartment = (clone $base)
+            ->toBase()
             ->join('departments', 'departments.id', '=', 'requisitions.department_id')
-            ->selectRaw('departments.name as department, count(*) as total')
+            ->select('departments.name as department', DB::raw('count(*) as total'))
             ->groupBy('departments.name')
             ->orderByDesc('total')
             ->limit(8)
             ->get();
 
-        $valueRows = (clone $itemBase)
-            ->join('requisitions', 'requisitions.id', '=', 'requisition_items.requisition_id')
+        $valueRows = RequisitionItem::query()
+            ->whereIn('requisition_id', $requisitionIds)
+            ->toBase()
             ->selectRaw('
-                requisitions.status,
-                sum(requisition_items.requested_qty * requisition_items.unit_price) as requested_value,
-                sum(coalesce(requisition_items.fulfilled_qty, 0) * requisition_items.unit_price) as fulfilled_value,
-                sum(requisition_items.requested_qty) as requested_qty,
-                sum(coalesce(requisition_items.fulfilled_qty, 0)) as fulfilled_qty,
-                sum(
-                    case
-                        when requisitions.status = ?
-                            and requisition_items.fulfilled_qty is not null
-                            and requisition_items.fulfilled_qty < requisition_items.requested_qty
-                            then (requisition_items.requested_qty - requisition_items.fulfilled_qty) * requisition_items.unit_price
-                        else 0
-                    end
-                ) as shortfall_value
-            ', [RequisitionStatus::Released->value])
+                coalesce(sum(requested_qty * unit_price), 0) as requested_value,
+                coalesce(sum(coalesce(fulfilled_qty, 0) * unit_price), 0) as fulfilled_value,
+                coalesce(sum(requested_qty), 0) as requested_qty,
+                coalesce(sum(coalesce(fulfilled_qty, 0)), 0) as fulfilled_qty
+            ')
             ->first();
+
+        $shortfallValue = round((float) RequisitionItem::query()
+            ->whereIn('requisition_id', (clone $base)
+                ->where('status', RequisitionStatus::Released->value)
+                ->select('requisitions.id'))
+            ->whereNotNull('fulfilled_qty')
+            ->whereColumn('fulfilled_qty', '<', 'requested_qty')
+            ->toBase()
+            ->selectRaw('coalesce(sum((requested_qty - fulfilled_qty) * unit_price), 0) as value')
+            ->value('value'), 2);
 
         $requestedValue = round((float) ($valueRows->requested_value ?? 0), 2);
         $fulfilledValue = round((float) ($valueRows->fulfilled_value ?? 0), 2);
-        $shortfallValue = round((float) ($valueRows->shortfall_value ?? 0), 2);
         $requestedQty = (int) ($valueRows->requested_qty ?? 0);
         $fulfilledQty = (int) ($valueRows->fulfilled_qty ?? 0);
         $fillRate = $requestedQty > 0 ? round(($fulfilledQty / $requestedQty) * 100, 1) : 0.0;
@@ -68,30 +70,36 @@ class InventoryReportInsights
             RequisitionStatus::ChangesRequested->value,
         ];
 
-        $pipelineValue = round((float) (clone $itemBase)
-            ->join('requisitions', 'requisitions.id', '=', 'requisition_items.requisition_id')
-            ->whereIn('requisitions.status', $pipelineStatuses)
-            ->selectRaw('sum(requisition_items.requested_qty * requisition_items.unit_price) as value')
+        $pipelineValue = round((float) RequisitionItem::query()
+            ->whereIn('requisition_id', (clone $base)
+                ->whereIn('status', $pipelineStatuses)
+                ->select('requisitions.id'))
+            ->toBase()
+            ->selectRaw('coalesce(sum(requested_qty * unit_price), 0) as value')
             ->value('value'), 2);
 
-        $releasedValue = round((float) (clone $itemBase)
-            ->join('requisitions', 'requisitions.id', '=', 'requisition_items.requisition_id')
-            ->where('requisitions.status', RequisitionStatus::Released->value)
-            ->selectRaw('sum(coalesce(requisition_items.fulfilled_qty, requisition_items.requested_qty) * requisition_items.unit_price) as value')
+        $releasedValue = round((float) RequisitionItem::query()
+            ->whereIn('requisition_id', (clone $base)
+                ->where('status', RequisitionStatus::Released->value)
+                ->select('requisitions.id'))
+            ->toBase()
+            ->selectRaw('coalesce(sum(coalesce(fulfilled_qty, requested_qty) * unit_price), 0) as value')
             ->value('value'), 2);
 
         $total = (clone $base)->count();
         $rejected = (int) ($byStatus[RequisitionStatus::Rejected->value] ?? 0);
         $rejectionRate = $total > 0 ? round(($rejected / $total) * 100, 1) : 0.0;
 
-        $topProducts = (clone $itemBase)
+        $topProducts = RequisitionItem::query()
+            ->whereIn('requisition_id', $requisitionIds)
             ->join('products', 'products.id', '=', 'requisition_items.product_id')
-            ->selectRaw('
-                products.sku,
-                products.description,
-                sum(requisition_items.requested_qty) as qty,
-                sum(requisition_items.requested_qty * requisition_items.unit_price) as value
-            ')
+            ->toBase()
+            ->select(
+                'products.sku',
+                'products.description',
+                DB::raw('sum(requisition_items.requested_qty) as qty'),
+                DB::raw('sum(requisition_items.requested_qty * requisition_items.unit_price) as value'),
+            )
             ->groupBy('products.id', 'products.sku', 'products.description')
             ->orderByDesc('value')
             ->limit(8)
@@ -161,14 +169,17 @@ class InventoryReportInsights
      */
     private function dailySeries(array $filters, $base): array
     {
+        $dayExpression = $this->dateExpression('requisitions.requested_on');
+
         $rows = (clone $base)
+            ->toBase()
             ->leftJoin('requisition_items', 'requisition_items.requisition_id', '=', 'requisitions.id')
-            ->selectRaw('
-                date(requisitions.requested_on) as day,
+            ->selectRaw("
+                {$dayExpression} as day,
                 count(distinct requisitions.id) as total,
                 coalesce(sum(requisition_items.requested_qty * requisition_items.unit_price), 0) as value
-            ')
-            ->groupBy('day')
+            ")
+            ->groupByRaw($dayExpression)
             ->orderBy('day')
             ->get()
             ->keyBy('day');
@@ -190,6 +201,14 @@ class InventoryReportInsights
         return $days;
     }
 
+    private function dateExpression(string $column): string
+    {
+        return match (DB::connection()->getDriverName()) {
+            'sqlite' => "strftime('%Y-%m-%d', {$column})",
+            default => "date({$column})",
+        };
+    }
+
     /**
      * @param  array{from:string,to:string,status:?string,department_id:?int,request_type:?string}  $filters
      * @return list<array{sku:string,description:string,avg_daily:float,projected_30:float,value_30:float}>
@@ -203,12 +222,13 @@ class InventoryReportInsights
         return RequisitionItem::query()
             ->whereIn('requisition_id', (clone $base)->select('requisitions.id'))
             ->join('products', 'products.id', '=', 'requisition_items.product_id')
-            ->selectRaw('
-                products.sku,
-                products.description,
-                sum(requisition_items.requested_qty) as qty,
-                avg(requisition_items.unit_price) as avg_price
-            ')
+            ->toBase()
+            ->select(
+                'products.sku',
+                'products.description',
+                DB::raw('sum(requisition_items.requested_qty) as qty'),
+                DB::raw('avg(requisition_items.unit_price) as avg_price'),
+            )
             ->groupBy('products.id', 'products.sku', 'products.description')
             ->orderByDesc('qty')
             ->limit(8)
@@ -240,14 +260,15 @@ class InventoryReportInsights
             ->join('products', 'products.id', '=', 'requisition_items.product_id')
             ->whereNotNull('requisition_items.fulfilled_qty')
             ->whereColumn('requisition_items.fulfilled_qty', '<', 'requisition_items.requested_qty')
-            ->selectRaw('
-                products.sku,
-                products.description,
-                sum(requisition_items.requested_qty) as requested,
-                sum(requisition_items.fulfilled_qty) as fulfilled,
-                sum(requisition_items.requested_qty - requisition_items.fulfilled_qty) as shortfall,
-                sum((requisition_items.requested_qty - requisition_items.fulfilled_qty) * requisition_items.unit_price) as value
-            ')
+            ->toBase()
+            ->select(
+                'products.sku',
+                'products.description',
+                DB::raw('sum(requisition_items.requested_qty) as requested'),
+                DB::raw('sum(requisition_items.fulfilled_qty) as fulfilled'),
+                DB::raw('sum(requisition_items.requested_qty - requisition_items.fulfilled_qty) as shortfall'),
+                DB::raw('sum((requisition_items.requested_qty - requisition_items.fulfilled_qty) * requisition_items.unit_price) as value'),
+            )
             ->groupBy('products.id', 'products.sku', 'products.description')
             ->orderByDesc('value')
             ->limit(8)
