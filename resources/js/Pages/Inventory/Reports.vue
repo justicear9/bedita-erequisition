@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
+import { formatDate } from '@/formatDate';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 
@@ -210,7 +211,7 @@ const exportUrl = () => {
                                 <td class="px-4 py-3 font-semibold text-bedita-navy">
                                     {{ req.number }}
                                 </td>
-                                <td class="px-4 py-3 text-gray-700">{{ req.requested_on?.slice?.(0, 10) || req.requested_on }}</td>
+                                <td class="px-4 py-3 text-gray-700">{{ formatDate(req.requested_on) }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ req.requester?.name }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ req.department?.name }}</td>
                                 <td class="px-4 py-3">

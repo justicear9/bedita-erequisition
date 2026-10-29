@@ -1,4 +1,5 @@
 <script setup>
+import { formatDate, formatDateTime } from '@/formatDate';
 import { Head } from '@inertiajs/vue3';
 import { onMounted } from 'vue';
 
@@ -45,7 +46,7 @@ const qty = (item) =>
         <dl class="mb-6 grid grid-cols-2 gap-3 text-sm">
             <div>
                 <dt class="text-gray-500">Date</dt>
-                <dd class="font-medium text-bedita-navy">{{ requisition.requested_on }}</dd>
+                <dd class="font-medium text-bedita-navy">{{ formatDate(requisition.requested_on) }}</dd>
             </div>
             <div>
                 <dt class="text-gray-500">Status</dt>
@@ -139,7 +140,7 @@ const qty = (item) =>
                 <p class="mt-2 border-t border-gray-100 pt-1 text-xs font-medium text-bedita-navy">
                     {{ block.name || ' ' }}
                 </p>
-                <p v-if="block.at" class="text-[10px] text-gray-500">{{ block.at }}</p>
+                <p v-if="block.at" class="text-[10px] text-gray-500">{{ formatDateTime(block.at) }}</p>
             </div>
         </div>
 

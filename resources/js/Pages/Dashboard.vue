@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
+import { formatDate } from '@/formatDate';
 import { Head, Link, router } from '@inertiajs/vue3';
 
 const openRequisition = (id) => {
@@ -196,7 +197,7 @@ const queueTitle = {
                             <div class="min-w-0">
                                 <p class="font-semibold text-bedita-navy">{{ req.number }}</p>
                                 <p class="text-sm text-gray-500">
-                                    {{ req.requested_on?.slice?.(0, 10) || req.requested_on }}
+                                    {{ formatDate(req.requested_on) }}
                                 </p>
                             </div>
                             <StatusBadge :status="req.status" :label="statusLabel(req.status)" />
@@ -230,7 +231,7 @@ const queueTitle = {
                                 <td class="px-5 py-3.5 text-gray-700">{{ req.requester?.name }}</td>
                                 <td class="px-5 py-3.5 text-gray-700">{{ req.department?.name }}</td>
                                 <td class="px-5 py-3.5 text-gray-700">
-                                    {{ req.requested_on?.slice?.(0, 10) || req.requested_on }}
+                                    {{ formatDate(req.requested_on) }}
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <StatusBadge :status="req.status" :label="statusLabel(req.status)" />

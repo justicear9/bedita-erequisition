@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import ProductSearch from '@/Components/ProductSearch.vue';
 import InputError from '@/Components/InputError.vue';
+import { toDateInputValue } from '@/formatDate';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
@@ -22,10 +23,9 @@ const emptyRow = () => ({
 });
 
 const minDate = props.today;
+const existingDate = toDateInputValue(props.requisition?.requested_on);
 const initialRequestedOn =
-    props.requisition?.requested_on && props.requisition.requested_on >= props.today
-        ? props.requisition.requested_on
-        : props.today;
+    existingDate && existingDate >= props.today ? existingDate : props.today;
 
 const form = useForm({
     requested_on: initialRequestedOn,

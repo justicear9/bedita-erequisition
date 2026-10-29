@@ -1,4 +1,6 @@
 <script setup>
+import { formatDateTime } from '@/formatDate';
+
 defineProps({
     title: { type: String, required: true },
     name: { type: String, default: null },
@@ -21,7 +23,7 @@ defineProps({
         </div>
         <div class="mt-3 border-t border-gray-200 pt-2">
             <p class="text-sm font-medium text-bedita-navy">{{ name || '—' }}</p>
-            <p v-if="signedAt" class="text-xs text-gray-500">{{ signedAt }}</p>
+            <p v-if="signedAt" class="text-xs text-gray-500">{{ formatDateTime(signedAt) }}</p>
         </div>
     </div>
 </template>

@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import ProductSearch from '@/Components/ProductSearch.vue';
 import SignatureBlock from '@/Components/SignatureBlock.vue';
+import { formatDate, formatDateTime } from '@/formatDate';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { computed, reactive, ref } from 'vue';
 
@@ -31,18 +32,6 @@ const actionTone = (action) => {
     }
     if (action === 'submitted') return 'blue';
     return 'slate';
-};
-
-const formatEventTime = (value) => {
-    if (!value) return '';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
-    return date.toLocaleString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-    });
 };
 
 const props = defineProps({
@@ -185,7 +174,7 @@ const release = () => {
                     <h2 class="text-xl font-semibold leading-tight text-gray-800">
                         {{ requisition.number }}
                     </h2>
-                    <p class="text-sm text-gray-500">{{ requisition.requested_on }}</p>
+                    <p class="text-sm text-gray-500">{{ formatDate(requisition.requested_on) }}</p>
                 </div>
                 <StatusBadge
                     :status="requisition.status"
@@ -236,7 +225,7 @@ const release = () => {
                 <div v-if="requisition.declaration_at" class="rounded-md bg-gray-50 p-3 text-sm text-gray-700">
                     <p class="font-medium text-gray-900">Declaration accepted</p>
                     <p class="mt-1">{{ declarationText }}</p>
-                    <p class="mt-1 text-xs text-gray-500">{{ requisition.declaration_at }}</p>
+                    <p class="mt-1 text-xs text-gray-500">{{ formatDateTime(requisition.declaration_at) }}</p>
                 </div>
             </section>
 
@@ -397,7 +386,7 @@ const release = () => {
                                     {{ actionLabel(event.action) }}
                                 </p>
                                 <p class="text-xs text-gray-400">
-                                    {{ formatEventTime(event.created_at) }}
+                                    {{ formatDateTime(event.created_at) }}
                                 </p>
                             </div>
                             <p class="mt-0.5 text-sm text-gray-600">
