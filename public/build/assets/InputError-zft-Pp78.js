@@ -1,1 +1,0 @@
-import{O as e,P as t,f as n,v as r,x as i,z as a}from"./app-fKtfcFs5.js";var o={class:`text-sm text-red-600`},s={__name:`InputError`,props:{message:{type:String}},setup(s){return(c,l)=>t((e(),i(`div`,null,[r(`p`,o,a(s.message),1)],512)),[[n,s.message]])}};export{s as t};
