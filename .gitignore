@@ -26,3 +26,6 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 .venv
+/database/imports/*.sqlite
+/database/imports/*.sql
+!/database/imports/.gitkeep
