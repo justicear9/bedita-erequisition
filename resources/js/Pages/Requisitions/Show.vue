@@ -74,6 +74,17 @@ const hasStickyActions = computed(
         props.permissions.update,
 );
 
+const hasWarehouseChanges = computed(() => warehouseLines.some((line) => lineChanged(line)));
+
+const warehouseActionLabel = computed(() => {
+    if (releasing.value) {
+        return hasWarehouseChanges.value ? 'Submitting changes…' : 'Releasing…';
+    }
+    return hasWarehouseChanges.value
+        ? 'Submit changes for approval'
+        : 'Release';
+});
+
 const postAction = (routeName, form) => {
     form.post(route(routeName, props.requisition.id), {
         preserveScroll: true,
@@ -149,22 +160,11 @@ const release = () => {
             :class="{ 'pb-36': hasStickyActions }"
         >
             <div
-                v-if="$page.props.flash?.success"
-                class="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
-            >
-                {{ $page.props.flash.success }}
-            </div>
-            <div
-                v-if="$page.props.flash?.error || warehouseError"
-                class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
-            >
-                {{ warehouseError || $page.props.flash.error }}
-            </div>
-            <div
-                v-if="$page.props.errors?.lines || $page.props.errors?.signature || $page.props.errors?.status"
+                v-if="warehouseError || $page.props.errors?.lines || $page.props.errors?.signature || $page.props.errors?.status"
                 class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
             >
                 {{
+                    warehouseError ||
                     $page.props.errors.lines ||
                     $page.props.errors.signature ||
                     $page.props.errors.status
@@ -428,11 +428,12 @@ const release = () => {
                 <button
                     v-if="permissions.warehouseFulfill"
                     type="button"
-                    class="rounded-md bg-bedita-red px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                    class="rounded-md px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                    :class="hasWarehouseChanges ? 'bg-amber-600 hover:bg-amber-700' : 'bg-bedita-red hover:bg-red-700'"
                     :disabled="releasing"
                     @click="release"
                 >
-                    {{ releasing ? 'Submitting…' : 'Release / submit changes' }}
+                    {{ warehouseActionLabel }}
                 </button>
             </div>
         </div>

@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+import FlashToast from '@/Components/FlashToast.vue';
 import NavLink from '@/Components/NavLink.vue';
 import NotificationBell from '@/Components/NotificationBell.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
@@ -238,25 +239,9 @@ const showingNavigationDropdown = ref(false);
             </header>
 
             <main>
-                <div
-                    v-if="$page.props.flash?.success || $page.props.flash?.error"
-                    class="mx-auto max-w-7xl space-y-2 px-4 pt-4 sm:px-6 lg:px-8"
-                >
-                    <div
-                        v-if="$page.props.flash?.success"
-                        class="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
-                    >
-                        {{ $page.props.flash.success }}
-                    </div>
-                    <div
-                        v-if="$page.props.flash?.error"
-                        class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
-                    >
-                        {{ $page.props.flash.error }}
-                    </div>
-                </div>
                 <slot />
             </main>
+            <FlashToast />
         </div>
     </div>
 </template>
