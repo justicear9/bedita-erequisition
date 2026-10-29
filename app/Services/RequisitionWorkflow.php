@@ -229,10 +229,10 @@ class RequisitionWorkflow
         $this->assertStatus($requisition, [RequisitionStatus::ReadyForWarehouse]);
 
         DB::transaction(function () use ($requisition, $actor, $lines) {
-            $hasChanges = $this->applyWarehouseLines($requisition, $lines);
+            $result = $this->applyWarehouseLines($requisition, $lines);
             $from = $requisition->status;
 
-            if ($hasChanges) {
+            if ($result['has_changes']) {
                 $requisition->update(['status' => RequisitionStatus::PendingInventoryChangeReview]);
                 $this->record(
                     $requisition,
@@ -240,7 +240,7 @@ class RequisitionWorkflow
                     'warehouse_submitted_changes',
                     $from,
                     RequisitionStatus::PendingInventoryChangeReview,
-                    'Line changes submitted for inventory approval.',
+                    $result['summary'],
                 );
 
                 $this->notifyMany(
@@ -280,13 +280,21 @@ class RequisitionWorkflow
 
         $from = $requisition->status;
         $path = $this->signatures->snapshotForRequisition($actor, 'inventory-change-'.$requisition->id);
+        $changeSummary = $this->summarizePendingItemChanges($requisition);
 
         $requisition->update([
             'status' => RequisitionStatus::ReadyForWarehouse,
             'inventory_signature_path' => $path,
             'inventory_signed_at' => now(),
         ]);
-        $this->record($requisition, $actor, 'inventory_approved_changes', $from, RequisitionStatus::ReadyForWarehouse);
+        $this->record(
+            $requisition,
+            $actor,
+            'inventory_approved_changes',
+            $from,
+            RequisitionStatus::ReadyForWarehouse,
+            $changeSummary ?: 'Warehouse line changes approved.',
+        );
 
         foreach ($requisition->items as $item) {
             $item->update([
@@ -330,11 +338,12 @@ class RequisitionWorkflow
 
     /**
      * @param  array<int, array{id:int, fulfilled_qty:int, product_id?:int, change_reason?:string|null}>  $lines
+     * @return array{has_changes: bool, summary: string}
      */
-    private function applyWarehouseLines(Requisition $requisition, array $lines): bool
+    private function applyWarehouseLines(Requisition $requisition, array $lines): array
     {
-        $hasChanges = false;
-        $items = $requisition->items()->get()->keyBy('id');
+        $changeNotes = [];
+        $items = $requisition->items()->with('product')->get()->keyBy('id');
 
         foreach ($lines as $line) {
             $item = $items->get($line['id'] ?? null);
@@ -346,7 +355,9 @@ class RequisitionWorkflow
 
             $fulfilledQty = (int) $line['fulfilled_qty'];
             $productId = isset($line['product_id']) ? (int) $line['product_id'] : $item->product_id;
-            $changed = $fulfilledQty !== (int) $item->requested_qty || $productId !== (int) $item->product_id;
+            $qtyChanged = $fulfilledQty !== (int) $item->requested_qty;
+            $productChanged = $productId !== (int) $item->product_id;
+            $changed = $qtyChanged || $productChanged;
 
             if ($changed) {
                 $reason = trim((string) ($line['change_reason'] ?? ''));
@@ -355,7 +366,6 @@ class RequisitionWorkflow
                         'lines' => 'A reason is required for each changed line item.',
                     ]);
                 }
-                $hasChanges = true;
             } else {
                 $reason = null;
             }
@@ -365,17 +375,76 @@ class RequisitionWorkflow
                 'change_reason' => $reason,
             ];
 
-            if ($productId !== (int) $item->product_id) {
-                $product = \App\Models\Product::query()->findOrFail($productId);
-                $updates['product_id'] = $product->id;
-                $updates['uom'] = $product->uom;
-                $updates['unit_price'] = $product->price;
+            $originalProduct = $item->product;
+            $newProduct = $originalProduct;
+
+            if ($productChanged) {
+                $newProduct = \App\Models\Product::query()->findOrFail($productId);
+                $updates['product_id'] = $newProduct->id;
+                $updates['uom'] = $newProduct->uom;
+                $updates['unit_price'] = $newProduct->price;
+            }
+
+            if ($changed) {
+                $parts = [];
+                $label = $originalProduct?->sku
+                    ? "{$originalProduct->sku} — {$originalProduct->description}"
+                    : 'Line #'.$item->id;
+
+                if ($qtyChanged) {
+                    $parts[] = "Qty {$item->requested_qty} → {$fulfilledQty} {$item->uom}";
+                }
+                if ($productChanged) {
+                    $parts[] = 'Product → '.($newProduct->sku ?? '').' — '.($newProduct->description ?? '');
+                }
+                $parts[] = 'Reason: '.$reason;
+                $changeNotes[] = $label.': '.implode(' · ', $parts);
             }
 
             $item->update($updates);
         }
 
-        return $hasChanges;
+        return [
+            'has_changes' => $changeNotes !== [],
+            'summary' => $changeNotes === []
+                ? ''
+                : "Changes submitted for inventory approval:\n".implode("\n", $changeNotes),
+        ];
+    }
+
+    private function summarizePendingItemChanges(Requisition $requisition): string
+    {
+        $notes = [];
+        $items = $requisition->items()->with('product')->get();
+
+        foreach ($items as $item) {
+            if (! $item->change_reason && (int) ($item->fulfilled_qty ?? $item->requested_qty) === (int) $item->requested_qty) {
+                continue;
+            }
+
+            if ($item->fulfilled_qty === null && ! $item->change_reason) {
+                continue;
+            }
+
+            $label = $item->product?->sku
+                ? "{$item->product->sku} — {$item->product->description}"
+                : 'Line #'.$item->id;
+            $parts = [];
+
+            if ($item->fulfilled_qty !== null && (int) $item->fulfilled_qty !== (int) $item->requested_qty) {
+                $parts[] = "Qty {$item->requested_qty} → {$item->fulfilled_qty} {$item->uom}";
+            }
+            if ($item->change_reason) {
+                $parts[] = 'Reason: '.$item->change_reason;
+            }
+            if ($parts !== []) {
+                $notes[] = $label.': '.implode(' · ', $parts);
+            }
+        }
+
+        return $notes === []
+            ? ''
+            : "Approved warehouse changes:\n".implode("\n", $notes);
     }
 
     private function notifyUser(?User $user, Requisition $requisition, string $kind, string $message): void

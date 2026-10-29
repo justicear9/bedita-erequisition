@@ -261,13 +261,17 @@ const release = () => {
                         <p class="font-medium text-gray-900">{{ item.product.description }}</p>
                         <p class="text-xs text-gray-500">{{ item.product.sku }} · {{ item.uom }}</p>
                         <p class="mt-1 text-sm">
-                            Qty: <span class="font-semibold">{{ item.requested_qty }}</span>
-                            <span v-if="item.fulfilled_qty !== null" class="text-gray-500">
-                                → fulfilled {{ item.fulfilled_qty }}
-                            </span>
+                            Requested:
+                            <span class="font-semibold">{{ item.requested_qty }} {{ item.uom }}</span>
+                        </p>
+                        <p
+                            v-if="item.fulfilled_qty !== null && Number(item.fulfilled_qty) !== Number(item.requested_qty)"
+                            class="mt-1 text-sm font-medium text-amber-800"
+                        >
+                            Warehouse qty: {{ item.fulfilled_qty }} {{ item.uom }}
                         </p>
                         <p v-if="item.change_reason" class="mt-1 text-sm text-orange-700">
-                            Change: {{ item.change_reason }}
+                            Reason: {{ item.change_reason }}
                         </p>
                     </div>
                 </div>
@@ -394,7 +398,7 @@ const release = () => {
                             </p>
                             <p
                                 v-if="event.note"
-                                class="mt-2 rounded-lg border border-slate-200/80 bg-white px-3 py-2 text-sm leading-snug text-gray-700"
+                                class="mt-2 whitespace-pre-line rounded-lg border border-slate-200/80 bg-white px-3 py-2 text-sm leading-snug text-gray-700"
                             >
                                 {{ event.note }}
                             </p>
