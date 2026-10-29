@@ -5,6 +5,9 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import { installNotificationSoundGestureUnlock } from './notificationSound';
+
+installNotificationSoundGestureUnlock();
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

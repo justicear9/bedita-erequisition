@@ -1,7 +1,11 @@
 <script setup>
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
-import { playNotificationSound } from '@/notificationSound';
+import {
+    isNotificationSoundUnlocked,
+    playNotificationSound,
+    unlockNotificationSound,
+} from '@/notificationSound';
 import { enablePushNotifications } from '@/pushNotifications';
 
 const props = defineProps({
@@ -13,8 +17,10 @@ const open = ref(false);
 const items = ref([]);
 const unread = ref(props.unreadCount);
 const pushStatus = ref('');
+const soundReady = ref(false);
 let pollTimer = null;
-let lastSeenId = null;
+let knownIds = new Set();
+let primed = false;
 
 watch(
     () => props.unreadCount,
@@ -27,21 +33,21 @@ const fetchNotifications = async ({ playSound = false } = {}) => {
     try {
         const response = await window.axios.get(route('notifications.index'));
         const list = response.data.notifications || [];
-        const previousUnread = unread.value;
         unread.value = response.data.unread_count || 0;
         items.value = list;
 
-        const newestId = list[0]?.id ?? null;
-        if (
-            playSound &&
-            newestId &&
-            newestId !== lastSeenId &&
-            unread.value > previousUnread
-        ) {
-            playNotificationSound();
+        const incoming = list.filter((n) => !knownIds.has(n.id));
+        if (!primed) {
+            list.forEach((n) => knownIds.add(n.id));
+            primed = true;
+            return;
         }
-        if (newestId) {
-            lastSeenId = newestId;
+
+        if (incoming.length) {
+            incoming.forEach((n) => knownIds.add(n.id));
+            if (playSound) {
+                playNotificationSound();
+            }
         }
     } catch {
         // Ignore poll failures (session expiry, etc.)
@@ -66,19 +72,44 @@ const markAll = async () => {
     unread.value = 0;
 };
 
+const enableSound = async () => {
+    const ok = await unlockNotificationSound();
+    soundReady.value = ok || isNotificationSoundUnlocked();
+    if (ok) {
+        playNotificationSound();
+        pushStatus.value = 'Sound enabled';
+    } else {
+        pushStatus.value = 'Could not enable sound in this browser';
+    }
+};
+
 const enablePush = async () => {
     pushStatus.value = 'Enabling…';
+    await unlockNotificationSound();
+    soundReady.value = true;
     try {
         await enablePushNotifications(props.vapidPublicKey);
         pushStatus.value = 'Push enabled';
+        playNotificationSound();
     } catch (e) {
         pushStatus.value = e?.message || 'Could not enable push';
     }
 };
 
+const toggleOpen = async () => {
+    open.value = !open.value;
+    if (open.value) {
+        await unlockNotificationSound();
+        soundReady.value = isNotificationSoundUnlocked();
+        fetchNotifications();
+    }
+};
+
 onMounted(() => {
+    soundReady.value = isNotificationSoundUnlocked();
     fetchNotifications();
-    pollTimer = window.setInterval(() => fetchNotifications({ playSound: true }), 20000);
+    // Faster poll so in-app alerts feel responsive on live.
+    pollTimer = window.setInterval(() => fetchNotifications({ playSound: true }), 10000);
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('message', (event) => {
@@ -103,7 +134,7 @@ onUnmounted(() => {
             type="button"
             class="relative inline-flex items-center rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-bedita-navy"
             aria-label="Notifications"
-            @click="open = !open"
+            @click="toggleOpen"
         >
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -158,6 +189,14 @@ onUnmounted(() => {
 
             <div class="space-y-2 border-t border-gray-100 px-3 py-3">
                 <button
+                    v-if="!soundReady"
+                    type="button"
+                    class="w-full rounded-md bg-bedita-navy px-3 py-2 text-xs font-semibold text-white hover:bg-bedita-navy-dark"
+                    @click="enableSound"
+                >
+                    Enable notification sounds
+                </button>
+                <button
                     v-if="vapidPublicKey"
                     type="button"
                     class="w-full rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-bedita-navy hover:bg-gray-50"
@@ -165,6 +204,9 @@ onUnmounted(() => {
                 >
                     Enable push notifications
                 </button>
+                <p v-if="!vapidPublicKey" class="text-center text-[11px] text-amber-700">
+                    Push keys not configured on server (VAPID). In-app sound still works after enabling above.
+                </p>
                 <p v-if="pushStatus" class="text-center text-xs text-gray-500">{{ pushStatus }}</p>
                 <Link
                     :href="route('dashboard')"

@@ -6,6 +6,45 @@ import SignatureBlock from '@/Components/SignatureBlock.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { computed, reactive, ref } from 'vue';
 
+const actionLabel = (action) =>
+    ({
+        created: 'Draft created',
+        submitted: 'Submitted for approval',
+        updated: 'Draft updated',
+        manager_approved: 'Manager approved',
+        manager_sent_back: 'Manager sent back',
+        manager_rejected: 'Manager rejected',
+        inventory_approved: 'Inventory approved',
+        inventory_sent_back: 'Inventory sent back',
+        inventory_rejected: 'Inventory rejected',
+        inventory_approved_changes: 'Inventory approved changes',
+        inventory_sent_changes_back: 'Sent back to warehouse',
+        warehouse_submitted_changes: 'Warehouse submitted changes',
+        warehouse_released: 'Released',
+    })[action] || String(action || '').replaceAll('_', ' ');
+
+const actionTone = (action) => {
+    if (String(action).includes('reject')) return 'red';
+    if (String(action).includes('sent_back') || String(action).includes('changes')) return 'amber';
+    if (String(action).includes('approved') || action === 'released' || action === 'warehouse_released') {
+        return 'green';
+    }
+    if (action === 'submitted') return 'blue';
+    return 'slate';
+};
+
+const formatEventTime = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+    });
+};
+
 const props = defineProps({
     requisition: { type: Object, required: true },
     declarationText: { type: String, required: true },
@@ -328,22 +367,52 @@ const release = () => {
                 </div>
             </section>
 
-            <section class="space-y-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <section class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                 <h3 class="font-semibold text-bedita-navy">Activity</h3>
-                <ol class="space-y-3">
+                <ol v-if="requisition.events?.length" class="relative mt-5 space-y-0">
                     <li
-                        v-for="event in requisition.events"
+                        v-for="(event, index) in requisition.events"
                         :key="event.id"
-                        class="border-l-2 border-indigo-200 pl-3 text-sm"
+                        class="relative flex gap-3 pb-6 last:pb-0"
                     >
-                        <p class="font-medium text-gray-900">
-                            {{ event.action.replaceAll('_', ' ') }}
-                            <span class="font-normal text-gray-500">by {{ event.user.name }}</span>
-                        </p>
-                        <p v-if="event.note" class="text-gray-700">{{ event.note }}</p>
-                        <p class="text-xs text-gray-400">{{ event.created_at }}</p>
+                        <div class="relative flex w-4 shrink-0 flex-col items-center">
+                            <span
+                                class="z-10 mt-1 h-3 w-3 rounded-full ring-4 ring-white"
+                                :class="{
+                                    'bg-red-500': actionTone(event.action) === 'red',
+                                    'bg-amber-500': actionTone(event.action) === 'amber',
+                                    'bg-emerald-500': actionTone(event.action) === 'green',
+                                    'bg-sky-500': actionTone(event.action) === 'blue',
+                                    'bg-slate-400': actionTone(event.action) === 'slate',
+                                }"
+                            />
+                            <span
+                                v-if="index < requisition.events.length - 1"
+                                class="absolute top-4 bottom-0 w-px bg-slate-200"
+                            />
+                        </div>
+                        <div class="min-w-0 flex-1 rounded-xl bg-slate-50/80 px-3 py-2.5">
+                            <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                                <p class="text-sm font-semibold text-bedita-navy">
+                                    {{ actionLabel(event.action) }}
+                                </p>
+                                <p class="text-xs text-gray-400">
+                                    {{ formatEventTime(event.created_at) }}
+                                </p>
+                            </div>
+                            <p class="mt-0.5 text-sm text-gray-600">
+                                {{ event.user?.name || 'System' }}
+                            </p>
+                            <p
+                                v-if="event.note"
+                                class="mt-2 rounded-lg border border-slate-200/80 bg-white px-3 py-2 text-sm leading-snug text-gray-700"
+                            >
+                                {{ event.note }}
+                            </p>
+                        </div>
                     </li>
                 </ol>
+                <p v-else class="mt-3 text-sm text-gray-500">No activity yet.</p>
             </section>
         </div>
 
