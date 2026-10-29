@@ -24,6 +24,10 @@ const form = reactive({
 const statusLabel = (status) =>
     props.statuses.find((s) => s.value === status)?.label || status;
 
+const openRequisition = (id) => {
+    router.visit(route('requisitions.show', id));
+};
+
 const apply = () => {
     router.get(route('inventory.reports'), {
         from: form.from,
@@ -197,15 +201,14 @@ const exportUrl = () => {
                             <tr
                                 v-for="req in requisitions.data"
                                 :key="req.id"
-                                class="hover:bg-slate-50/60"
+                                class="cursor-pointer hover:bg-slate-50/60 active:bg-slate-100"
+                                role="link"
+                                tabindex="0"
+                                @click="openRequisition(req.id)"
+                                @keydown.enter.prevent="openRequisition(req.id)"
                             >
-                                <td class="px-4 py-3">
-                                    <Link
-                                        :href="route('requisitions.show', req.id)"
-                                        class="font-semibold text-bedita-navy hover:text-bedita-red"
-                                    >
-                                        {{ req.number }}
-                                    </Link>
+                                <td class="px-4 py-3 font-semibold text-bedita-navy">
+                                    {{ req.number }}
                                 </td>
                                 <td class="px-4 py-3 text-gray-700">{{ req.requested_on?.slice?.(0, 10) || req.requested_on }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ req.requester?.name }}</td>

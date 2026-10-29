@@ -1,7 +1,11 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
+
+const openRequisition = (id) => {
+    router.visit(route('requisitions.show', id));
+};
 
 defineProps({
     myRequests: { type: Array, default: () => [] },
@@ -156,10 +160,10 @@ const queueTitle = {
                         v-for="req in queue"
                         :key="req.id"
                         :href="route('requisitions.show', req.id)"
-                        class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:border-bedita-red/20 hover:shadow-md"
+                        class="block rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:border-bedita-red/20 hover:shadow-md active:bg-slate-50"
                     >
                         <div class="flex items-start justify-between gap-3">
-                            <div>
+                            <div class="min-w-0">
                                 <p class="font-semibold text-bedita-navy">{{ req.number }}</p>
                                 <p class="mt-1 text-sm text-gray-600">
                                     {{ req.requester?.name }} · {{ req.department?.name }}
@@ -186,10 +190,10 @@ const queueTitle = {
                         v-for="req in myRequests"
                         :key="req.id"
                         :href="route('requisitions.show', req.id)"
-                        class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+                        class="block rounded-2xl border border-gray-100 bg-white p-4 shadow-sm active:bg-slate-50"
                     >
                         <div class="flex items-start justify-between gap-3">
-                            <div>
+                            <div class="min-w-0">
                                 <p class="font-semibold text-bedita-navy">{{ req.number }}</p>
                                 <p class="text-sm text-gray-500">
                                     {{ req.requested_on?.slice?.(0, 10) || req.requested_on }}
@@ -211,14 +215,17 @@ const queueTitle = {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
-                            <tr v-for="req in myRequests" :key="req.id" class="hover:bg-slate-50/60">
-                                <td class="px-5 py-3.5">
-                                    <Link
-                                        :href="route('requisitions.show', req.id)"
-                                        class="font-semibold text-bedita-navy hover:text-bedita-red"
-                                    >
-                                        {{ req.number }}
-                                    </Link>
+                            <tr
+                                v-for="req in myRequests"
+                                :key="req.id"
+                                class="cursor-pointer hover:bg-slate-50/60 active:bg-slate-100"
+                                role="link"
+                                tabindex="0"
+                                @click="openRequisition(req.id)"
+                                @keydown.enter.prevent="openRequisition(req.id)"
+                            >
+                                <td class="px-5 py-3.5 font-semibold text-bedita-navy">
+                                    {{ req.number }}
                                 </td>
                                 <td class="px-5 py-3.5 text-gray-700">{{ req.requester?.name }}</td>
                                 <td class="px-5 py-3.5 text-gray-700">{{ req.department?.name }}</td>
