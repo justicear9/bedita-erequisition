@@ -64,6 +64,7 @@ const requestTypeLabel = computed(() => {
         donation: 'Donation',
         product_demonstration: 'Product demonstration',
         customer_hcp_engagement: 'Customer/HCP engagement',
+        tender: 'Tender',
         other: props.requisition.request_type_other || 'Other',
     };
     return map[props.requisition.request_type] || props.requisition.request_type;

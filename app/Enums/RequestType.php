@@ -8,6 +8,7 @@ enum RequestType: string
     case Donation = 'donation';
     case ProductDemonstration = 'product_demonstration';
     case CustomerHcpEngagement = 'customer_hcp_engagement';
+    case Tender = 'tender';
     case Other = 'other';
 
     public function label(): string
@@ -17,6 +18,7 @@ enum RequestType: string
             self::Donation => 'Donation',
             self::ProductDemonstration => 'Product demonstration',
             self::CustomerHcpEngagement => 'Customer/healthcare professional engagement',
+            self::Tender => 'Tender',
             self::Other => 'Other',
         };
     }
